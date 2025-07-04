@@ -1,0 +1,104 @@
+@startuml HealthStock
+
+class Fornecedor {
+  - id : int
+  - nome : String
+  - cnpj : String
+  - telefone : String
+  - endereco : String
+  - email : String
+}
+
+class Produto {
+  - id : int
+  - nome : String
+  - quantidade : int
+  - tipo : String
+  - idFornecedor : int
+}
+
+class Medicacao {
+  - lote : String
+  - validade : Date
+  - ultimoResponsavel : String
+  - ultimaMovimentacao : Date
+  + verificarValidade () : boolean
+  + movimentacao (responsavel : String)
+}
+
+class Estoque {
+  - produtos : List<Produto>
+  + adicionarProduto (produto : Produto)
+  + retirarProduto (id : int, qtd : int) : Produto
+  + listarProdutos () : Map<Integer, String>
+  + getProduto (id : int) : Produto
+}
+
+class Pedido {
+  - setorOrigem : String
+  - setorDestino : String
+  - dataPedido : Date
+  - produto : String
+  - quantidade : int
+  - estado : String
+}
+
+class Setor {
+  - nome : String
+  - senha : String
+  - pedidos : List<Pedido>
+  - estoque : Estoque
+
+  + validarSenha (senha : String) : boolean
+
+  + gerarPedido (idProduto : int, qtd : int)
+  + adicionarPedido (pedido : Pedido)
+  + listarPedidos () : List<String>
+  + listarPedidosPorEstado (estado : String) : List<String>
+  + aprovarPedido (nPedido : int, resposta : boolean) : boolean 
+
+  + entradaProduto (produto : Produto)
+  + retiradaProduto (id : int, qtd : int) : Produto
+  + consumirProduto (id : int, qtd : int)
+}
+
+class SetorEntrada {
+  + distribuirEntrada (produto : Produto)
+}
+
+class SetorCadastro {
+  - cadastroFornecedor (fornecedor : Fornecedor)
+  - cadastroProduto (nome : String, tipo : String)
+  + listarFornecedores () : List<Fornecedor>
+  + getFornecedor (id : int) : Fornecedor
+}
+
+Setor <|-- SetorEntrada : é um(a)
+
+Setor <|-- SetorCadastro : é um(a)
+
+Produto <|-- Medicacao : é um(a)
+
+Produto o-- "1" Fornecedor : possui
+
+Setor o-- "1" Estoque : possui
+
+Setor --> Pedido : gera
+
+Setor o-- "0..*" Pedido : possui
+
+Estoque o-- "0..*" Produto : possui
+
+note top of SetorCadastro
+  Setor de compras
+end note
+
+note bottom of SetorEntrada
+  Almoxarifado
+end note
+
+class Controller {
+  + transferirProduto (idProduto : int, qtd : int, setorOrigem : String, setorDestino : String)
+}
+
+@enduml
