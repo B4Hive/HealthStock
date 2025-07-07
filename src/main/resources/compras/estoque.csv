@@ -1,0 +1,3 @@
+ID,Nome,Quantidade,ID Fornecedor,Tipo,Lote,Data Validade,Responsável,Última Atualização
+1,Paracetamol,100,1,Medicamento,Lote123,2025-12-31,João Silva,2023-10-01
+2,Produto,50,1,Produto,NULL,NULL,NULL,NULL

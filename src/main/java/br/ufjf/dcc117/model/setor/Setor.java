@@ -1,6 +1,9 @@
-package br.ufjf.dcc117.model;
+package br.ufjf.dcc117.model.setor;
 
 import java.util.List;
+
+import br.ufjf.dcc117.model.estoque.Estoque;
+import br.ufjf.dcc117.model.estoque.Produto;
 
 public class Setor {
 
@@ -10,6 +13,10 @@ public class Setor {
     private String senha;
     private final List<Pedido> pedidos;
     private final Estoque estoque;
+
+    public static final String SETOR_MEDICACAO = "farmacia";
+    public static final String SETOR_ENTRADA = "almoxarifado";
+    public static final String SETOR_CADASTRO = "compras";
 
     // << Construtor >>
 
@@ -42,6 +49,11 @@ public class Setor {
     
     public boolean validarSenha(String senha) {
         return this.senha.equals(senha);
+    }
+
+    public static Setor carregarSetor(String nome) {
+        //TODO: Implementar lógica para carregar o setor a partir do csv
+        return null;
     }
 
     // << Métodos de Pedido >>

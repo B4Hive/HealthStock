@@ -13,7 +13,6 @@ class Produto {
   - id : int
   - nome : String
   - quantidade : int
-  - tipo : String
   - idFornecedor : int
 }
 
@@ -96,9 +95,5 @@ end note
 note bottom of SetorEntrada
   Almoxarifado
 end note
-
-class Controller {
-  + transferirProduto (idProduto : int, qtd : int, setorOrigem : String, setorDestino : String)
-}
 
 @enduml

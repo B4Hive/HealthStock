@@ -1,5 +1,6 @@
-package br.ufjf.dcc117.model;
+package br.ufjf.dcc117.model.estoque;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ public class Estoque {
     // << Atributos >>
 
     private final List<Produto> produtos;
+    private static final String PATH = "src\\main\\resources\\";
 
     // << Construtor >>
 
@@ -21,11 +23,44 @@ public class Estoque {
         this.produtos = new ArrayList<>();
     }
 
+    public static Estoque carregar(String setor) {
+        File arquivo = new File(PATH + setor + "\\estoque.csv");
+        if (!arquivo.exists()) {
+            return null;
+        }
+        List<Produto> produtos = new ArrayList<>();
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(arquivo))) {
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                produtos.add(Produto.carregar(linha));
+            }
+        } catch (java.io.IOException e) {
+            return null;
+        }
+        if (!produtos.isEmpty()) {
+            return new Estoque(produtos);
+        }
+        return null;
+    }
+
+    public static void salvarEstoque(String setor, Estoque estoque) {
+        File arquivo = new File(PATH + setor + "\\estoque.csv");
+        try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.FileWriter(arquivo))) {
+            for (Produto produto : estoque.produtos) {
+                writer.write(produto.toString());
+                writer.newLine();
+            }
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+        
+    }
+
     // << Métodos >>
     
     public void adicionarProduto(Produto produto) {
         if (produto == null) {
-            throw new IllegalArgumentException("Produto não pode ser nulo"); // TODO: Lidar com exceção de forma mais adequada
+            return;
         }
         for (Produto p : this.produtos) {
             if (p.getId() == produto.getId()) {
@@ -41,17 +76,15 @@ public class Estoque {
             if (p.getId() == id) {
                 if (p.getQuantidade() >= quantidade) {
                     p.setQuantidade(p.getQuantidade() - quantidade);
-                    // TODO: Se a quantidade do produto for 0, remove o produto da lista?
                     return new Produto(p.getId(), p.getNome(), quantidade, p.getIdFornecedor());
                 } else if (p.getQuantidade() > 0) {
                     quantidade = p.getQuantidade();
                     p.setQuantidade(0);
-                    // TODO: Retorna o produto com a quantidade disponível
                     return new Produto(p.getId(), p.getNome(), quantidade, p.getIdFornecedor());
                 }
             }
         }
-        return null; // TODO: Retorna null se o produto não for encontrado
+        return null;
     }
 
     public Map<Integer, String> listarProdutos() {
@@ -64,7 +97,7 @@ public class Estoque {
                 return p;
             }
         }
-        return null; // TODO: Retorna null se o produto não for encontrado
+        return null;
     }
     
 }

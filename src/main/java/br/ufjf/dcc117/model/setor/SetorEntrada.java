@@ -1,14 +1,15 @@
-package br.ufjf.dcc117.model;
+package br.ufjf.dcc117.model.setor;
 
 import java.util.List;
 
-public class SetorEntrada extends Setor {
+import br.ufjf.dcc117.model.estoque.Estoque;
+import br.ufjf.dcc117.model.estoque.Medicacao;
+import br.ufjf.dcc117.model.estoque.Produto;
 
-    // TODO: private final Setor setorMedicamentos;
+public class SetorEntrada extends Setor {
 
     public SetorEntrada(String nome, String senha, List<Pedido> pedidos, Estoque estoque) {
         super(nome, senha, pedidos, estoque);
-        // TODO: this.setorMedicamentos = Farmacia;
     }
 
     @Override
@@ -18,7 +19,8 @@ public class SetorEntrada extends Setor {
 
     private void distribuirProduto(Produto produto) {
         if (produto instanceof Medicacao) {
-            // TODO: Transferir medicamento para o setor de medicamentos
+            //TODO: Setor farmacia = Setor.carregarSetor(Setor.SETOR_MEDICACAO);
+            //TODO: farmacia.entradaProduto(produto);
         } else
         getEstoque().adicionarProduto(produto);
     }

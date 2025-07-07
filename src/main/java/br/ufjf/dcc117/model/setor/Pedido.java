@@ -1,4 +1,4 @@
-package br.ufjf.dcc117.model;
+package br.ufjf.dcc117.model.setor;
 
 import java.util.Date;
 
