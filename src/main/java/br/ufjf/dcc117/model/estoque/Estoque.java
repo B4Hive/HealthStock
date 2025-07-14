@@ -1,6 +1,11 @@
 package br.ufjf.dcc117.model.estoque;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,34 +31,40 @@ public class Estoque {
     public static Estoque carregar(String setor) {
         File arquivo = new File(PATH + setor + "\\estoque.csv");
         if (!arquivo.exists()) {
-            return null;
+            try {
+                arquivo.createNewFile();
+            } catch (IOException e) {
+                // Tratar exceção de criação de arquivo
+            }
+            return new Estoque();
         }
         List<Produto> produtos = new ArrayList<>();
-        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(arquivo))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(arquivo))) {
             String linha;
-            while ((linha = br.readLine()) != null) {
-                produtos.add(Produto.carregar(linha));
+            reader.readLine(); // Pular cabeçalho, se houver
+            while ((linha = reader.readLine()) != null) {
+                Produto produto = Produto.carregar(linha);
+                if (produto != null) {
+                    produtos.add(produto);
+                }
             }
-        } catch (java.io.IOException e) {
-            return null;
+        } catch (IOException e) {
+            // Tratar exceção de leitura
         }
-        if (!produtos.isEmpty()) {
-            return new Estoque(produtos);
-        }
-        return null;
+        return new Estoque(produtos);
     }
 
     public static void salvarEstoque(String setor, Estoque estoque) {
         File arquivo = new File(PATH + setor + "\\estoque.csv");
-        try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.FileWriter(arquivo))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(arquivo))) {
+            writer.write("ID,Nome,Quantidade,IDFornecedor,Tipo,Lote,Validade,UltimoResponsavel,DataUltimoResponsavel\n");
             for (Produto produto : estoque.produtos) {
-                writer.write(produto.toString());
+                writer.write(Produto.salvar(produto));
                 writer.newLine();
             }
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            // Tratar exceção de escrita
         }
-        
     }
 
     // << Métodos >>

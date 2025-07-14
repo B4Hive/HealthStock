@@ -23,19 +23,32 @@ public class Produto {
         if (partes.length != 9) return null;
         if (partes[4].trim().equals("Medicacao")) return Medicacao.carregar(produto);
 
-        try {
-            int id = Integer.parseInt(partes[0].trim());
-            String nome = partes[1].trim();
-            int quantidade = Integer.parseInt(partes[2].trim());
-            int idFornecedor = Integer.parseInt(partes[3].trim());
-            return new Produto(id, nome, quantidade, idFornecedor);
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        int id = Integer.parseInt(partes[0].trim());
+        String nome = partes[1].trim();
+        int quantidade = Integer.parseInt(partes[2].trim());
+        int idFornecedor = Integer.parseInt(partes[3].trim());
+        return new Produto(id, nome, quantidade, idFornecedor);
     }
 
-    public static void salvar(Produto produto) {
-        //TODO: Implementar a lógica para salvar o produto no arquivo CSV
+    public static String salvar(Produto produto) {
+        if (produto == null) {
+            throw new IllegalArgumentException("Produto não pode ser nulo.");
+        }
+        if (produto instanceof Medicacao medicacao) {
+            return Medicacao.salvar(medicacao);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(produto.getId()).append(",");
+        sb.append(produto.getNome()).append(",");
+        sb.append(produto.getQuantidade()).append(",");
+        sb.append(produto.getIdFornecedor()).append(",");
+        sb.append("Produto").append(",");
+        sb.append("NULL").append(",");
+        sb.append("NULL").append(",");
+        sb.append("NULL").append(",");
+        sb.append("NULL");
+        return sb.toString();
     }
 
     // << Getters e Setters >>

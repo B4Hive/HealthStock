@@ -1,5 +1,7 @@
 package br.ufjf.dcc117.model.estoque;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Medicacao extends Produto {
@@ -12,7 +14,7 @@ public class Medicacao extends Produto {
     private Date dataUltimoResponsavel;
 
     // << Construtor >>
-    
+
     public Medicacao(int id, String nome, int quantidade, int idFornecedor, String lote, Date validade, String ultimoResponsavel, Date dataUltimoResponsavel) {
         super(id, nome, quantidade, idFornecedor);
         this.lote = lote;
@@ -20,6 +22,8 @@ public class Medicacao extends Produto {
         this.ultimoResponsavel = ultimoResponsavel;
         this.dataUltimoResponsavel = dataUltimoResponsavel;
     }
+
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public static Medicacao carregar(String produto) {
         String[] partes = produto.split(",");
@@ -31,18 +35,32 @@ public class Medicacao extends Produto {
             int quantidade = Integer.parseInt(partes[2].trim());
             int idFornecedor = Integer.parseInt(partes[3].trim());
             String lote = partes[5].trim();
-            Date validade = new Date(partes[6].trim()); // Assumindo que a data está em formato compatível
+            Date validade = sdf.parse(partes[6].trim());
             String ultimoResponsavel = partes[7].trim();
-            Date dataUltimoResponsavel = new Date(partes[8].trim()); // Assumindo que a data está em formato compatível
+            Date dataUltimoResponsavel = sdf.parse(partes[8].trim());
 
             return new Medicacao(id, nome, quantidade, idFornecedor, lote, validade, ultimoResponsavel, dataUltimoResponsavel);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | ParseException e) {
             return null;
         }
     }
 
+    public static String salvar(Medicacao medicacao) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(medicacao.getId()).append(",");
+        sb.append(medicacao.getNome()).append(",");
+        sb.append(medicacao.getQuantidade()).append(",");
+        sb.append(medicacao.getIdFornecedor()).append(",");
+        sb.append("Medicacao").append(",");
+        sb.append(medicacao.getLote()).append(",");
+        sb.append(sdf.format(medicacao.getValidade())).append(",");
+        sb.append(medicacao.getUltimoResponsavel()).append(",");
+        sb.append(sdf.format(medicacao.getDataUltimoResponsavel()));
+        return sb.toString();
+    }
+
     // << Getters e Setters >>
-    
+
     public String getLote() {
         return this.lote;
     }

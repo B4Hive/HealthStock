@@ -7,6 +7,8 @@ class Fornecedor {
   - telefone : String
   - endereco : String
   - email : String
+  + {static} carregar (fornecedor : String) : Fornecedor
+  + {static} salvar (fornecedor : Fornecedor) : String
 }
 
 class Produto {
@@ -14,6 +16,8 @@ class Produto {
   - nome : String
   - quantidade : int
   - idFornecedor : int
+  + {static} carregar (produto : String) : Produto
+  + {static} salvar (produto : Produto) : String
 }
 
 class Medicacao {
@@ -23,6 +27,8 @@ class Medicacao {
   - ultimaMovimentacao : Date
   + verificarValidade () : boolean
   + movimentacao (responsavel : String)
+  + {static} carregar (medicacao : String) : Medicacao
+  + {static} salvar (medicacao : Medicacao) : String
 }
 
 class Estoque {
@@ -40,6 +46,9 @@ class Pedido {
   - produto : String
   - quantidade : int
   - estado : String
+
+  + {static} carregar (pedido : String) : Pedido
+  + {static} salvar (pedido : Pedido) : String
 }
 
 class Setor {
@@ -59,6 +68,9 @@ class Setor {
   + entradaProduto (produto : Produto)
   + retiradaProduto (id : int, qtd : int) : Produto
   + consumirProduto (id : int, qtd : int)
+
+  + {static} carregar (nomeArquivo : String) : Setor
+  + {static} salvar (setor : Setor) : void
 }
 
 class SetorEntrada {
@@ -87,6 +99,8 @@ Setor --> Pedido : gera
 Setor o-- "0..*" Pedido : possui
 
 Estoque o-- "0..*" Produto : possui
+
+SetorCadastro --> Fornecedor : cadastra
 
 note top of SetorCadastro
   Setor de compras
