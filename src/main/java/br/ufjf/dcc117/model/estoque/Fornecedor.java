@@ -37,14 +37,14 @@ public class Fornecedor {
         return new Fornecedor(id, nome, cnpj, telefone, endereco, email);
     }
 
-    public static String salvar(Fornecedor fornecedor) {
+    public String salvar() {
         StringBuilder sb = new StringBuilder();
-        sb.append(fornecedor.getId()).append(",");
-        sb.append(fornecedor.getNome()).append(",");
-        sb.append(fornecedor.getCnpj()).append(",");
-        sb.append(fornecedor.getTelefone()).append(",");
-        sb.append(fornecedor.getEndereco()).append(",");
-        sb.append(fornecedor.getEmail());
+        sb.append(this.getId()).append(",");
+        sb.append(this.getNome()).append(",");
+        sb.append(this.getCnpj()).append(",");
+        sb.append(this.getTelefone()).append(",");
+        sb.append(this.getEndereco()).append(",");
+        sb.append(this.getEmail());
         return sb.toString();
     }
 

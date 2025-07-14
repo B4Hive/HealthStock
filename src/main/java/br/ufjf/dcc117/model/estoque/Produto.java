@@ -30,19 +30,18 @@ public class Produto {
         return new Produto(id, nome, quantidade, idFornecedor);
     }
 
-    public static String salvar(Produto produto) {
-        if (produto == null) {
-            throw new IllegalArgumentException("Produto não pode ser nulo.");
+    public String salvar() {
+        /*
+         if (this instanceof Medicacao medicacao) {
+            return medicacao.salvar();
         }
-        if (produto instanceof Medicacao medicacao) {
-            return Medicacao.salvar(medicacao);
-        }
+        */
 
         StringBuilder sb = new StringBuilder();
-        sb.append(produto.getId()).append(",");
-        sb.append(produto.getNome()).append(",");
-        sb.append(produto.getQuantidade()).append(",");
-        sb.append(produto.getIdFornecedor()).append(",");
+        sb.append(this.getId()).append(",");
+        sb.append(this.getNome()).append(",");
+        sb.append(this.getQuantidade()).append(",");
+        sb.append(this.getIdFornecedor()).append(",");
         sb.append("Produto").append(",");
         sb.append("NULL").append(",");
         sb.append("NULL").append(",");

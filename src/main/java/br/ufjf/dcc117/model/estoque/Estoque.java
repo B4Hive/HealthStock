@@ -11,12 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import br.ufjf.dcc117.model.Auxiliar;
+
 public class Estoque {
 
     // << Atributos >>
 
     private final List<Produto> produtos;
-    private static final String PATH = "src\\main\\resources\\";
 
     // << Construtor >>
 
@@ -29,15 +30,8 @@ public class Estoque {
     }
 
     public static Estoque carregar(String setor) {
-        File arquivo = new File(PATH + setor + "\\estoque.csv");
-        if (!arquivo.exists()) {
-            try {
-                arquivo.createNewFile();
-            } catch (IOException e) {
-                // Tratar exceção de criação de arquivo
-            }
-            return new Estoque();
-        }
+        File arquivo = new File(Auxiliar.path(setor,"estoque","csv"));
+        Auxiliar.checkFile(arquivo);
         List<Produto> produtos = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(arquivo))) {
             String linha;
@@ -49,21 +43,27 @@ public class Estoque {
                 }
             }
         } catch (IOException e) {
-            // Tratar exceção de leitura
+            System.err.println("Erro ao carregar estoque.");
+            System.err.println("Mensagem de erro: " + e.getMessage());
+            return new Estoque(); // Retorna um estoque vazio em caso de erro
         }
         return new Estoque(produtos);
     }
 
-    public static void salvarEstoque(String setor, Estoque estoque) {
-        File arquivo = new File(PATH + setor + "\\estoque.csv");
+    public void salvar(String setor) {
+        File arquivo = new File(Auxiliar.path(setor,"estoque","csv"));
+        Auxiliar.checkFile(arquivo);
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(arquivo))) {
             writer.write("ID,Nome,Quantidade,IDFornecedor,Tipo,Lote,Validade,UltimoResponsavel,DataUltimoResponsavel\n");
-            for (Produto produto : estoque.produtos) {
-                writer.write(Produto.salvar(produto));
+            for (Produto produto : this.produtos) {
+                writer.write(produto.salvar());
                 writer.newLine();
             }
         } catch (IOException e) {
-            // Tratar exceção de escrita
+            System.err.println("Erro ao salvar estoque.");
+            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.exit(1); // Encerra o programa em caso de erro crítico
         }
     }
 

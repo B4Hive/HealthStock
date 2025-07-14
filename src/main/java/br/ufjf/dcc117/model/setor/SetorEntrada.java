@@ -2,6 +2,7 @@ package br.ufjf.dcc117.model.setor;
 
 import java.util.List;
 
+import br.ufjf.dcc117.model.Auxiliar;
 import br.ufjf.dcc117.model.estoque.Estoque;
 import br.ufjf.dcc117.model.estoque.Medicacao;
 import br.ufjf.dcc117.model.estoque.Produto;
@@ -19,8 +20,11 @@ public class SetorEntrada extends Setor {
 
     private void distribuirProduto(Produto produto) {
         if (produto instanceof Medicacao) {
-            //TODO: Setor farmacia = Setor.carregarSetor(Setor.SETOR_MEDICACAO);
-            //TODO: farmacia.entradaProduto(produto);
+            Setor farmacia = Setor.carregar(Auxiliar.SETOR_MEDICACAO);
+            if (farmacia == null) {
+                return;
+            }
+            farmacia.entradaProduto(produto);
         } else
         getEstoque().adicionarProduto(produto);
     }

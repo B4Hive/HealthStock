@@ -1,7 +1,14 @@
 package br.ufjf.dcc117.model.setor;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
+import br.ufjf.dcc117.model.Auxiliar;
 import br.ufjf.dcc117.model.estoque.Estoque;
 import br.ufjf.dcc117.model.estoque.Produto;
 
@@ -13,10 +20,6 @@ public class Setor {
     private String senha;
     private final List<Pedido> pedidos;
     private final Estoque estoque;
-
-    public static final String SETOR_MEDICACAO = "farmacia";
-    public static final String SETOR_ENTRADA = "almoxarifado";
-    public static final String SETOR_CADASTRO = "compras";
 
     // << Construtor >>
 
@@ -51,9 +54,54 @@ public class Setor {
         return this.senha.equals(senha);
     }
 
-    public static Setor carregarSetor(String nome) {
-        //TODO: Implementar lógica para carregar o setor a partir do csv
+    public static Setor carregar(String nome) {
+        Estoque estoque = Estoque.carregar(nome);
+        List<Pedido> pedidos = Pedido.carregarPedidos(nome);
+        File senhaFile = new File(Auxiliar.path(nome, nome, "pw"));
+        if (!senhaFile.exists()) {
+            System.err.println("Arquivo de senha não encontrado para o setor: " + nome);
+            return null;
+        }
+
+        String senha;
+        try (BufferedReader br = new BufferedReader(new FileReader(senhaFile))) {
+            senha = Auxiliar.decrypt(br.readLine());
+        } catch (IOException e) {
+            System.err.println("Erro ao ler senha do setor " + nome);
+            System.err.println("Mensagem de erro: " + e.getMessage());
+            return null; // Retorna null em caso de erro
+        }
+        if (estoque != null && pedidos != null) {
+            return new Setor(nome, senha, pedidos, estoque);
+        }
         return null;
+    }
+
+    public void salvar() {
+
+        //Salvar Senha
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(Auxiliar.path(nome, nome, "pw")))) {
+            bw.write(Auxiliar.encrypt(this.senha));
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar senha do setor " + nome);
+            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.exit(1); // Encerra o programa em caso de erro crítico
+        }
+
+        //Salvar Pedidos
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(Auxiliar.path(nome, "pedidos", "csv")))) {
+            for (Pedido pedido : pedidos) {
+                bw.write(pedido.salvar());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar pedidos do setor " + nome);
+            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.exit(1); // Encerra o programa em caso de erro crítico
+        }
+
+        //Salvar Estoque
+        estoque.salvar(nome);
     }
 
     // << Métodos de Pedido >>

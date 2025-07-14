@@ -7,8 +7,9 @@ class Fornecedor {
   - telefone : String
   - endereco : String
   - email : String
+
   + {static} carregar (fornecedor : String) : Fornecedor
-  + {static} salvar (fornecedor : Fornecedor) : String
+  + salvar () : String
 }
 
 class Produto {
@@ -16,8 +17,9 @@ class Produto {
   - nome : String
   - quantidade : int
   - idFornecedor : int
+
   + {static} carregar (produto : String) : Produto
-  + {static} salvar (produto : Produto) : String
+  + salvar () : String
 }
 
 class Medicacao {
@@ -25,18 +27,24 @@ class Medicacao {
   - validade : Date
   - ultimoResponsavel : String
   - ultimaMovimentacao : Date
+  
   + verificarValidade () : boolean
   + movimentacao (responsavel : String)
+
   + {static} carregar (medicacao : String) : Medicacao
-  + {static} salvar (medicacao : Medicacao) : String
+  + salvar () : String
 }
 
 class Estoque {
   - produtos : List<Produto>
+
   + adicionarProduto (produto : Produto)
   + retirarProduto (id : int, qtd : int) : Produto
   + listarProdutos () : Map<Integer, String>
   + getProduto (id : int) : Produto
+
+  + {static} carregar (nomeArquivo : String) : Estoque
+  + salvar (setor : String) : void
 }
 
 class Pedido {
@@ -48,7 +56,8 @@ class Pedido {
   - estado : String
 
   + {static} carregar (pedido : String) : Pedido
-  + {static} salvar (pedido : Pedido) : String
+  + {static} carregarPedidos (nomeSetor : String) : List<Pedido>
+  + salvar () : String
 }
 
 class Setor {
@@ -70,7 +79,7 @@ class Setor {
   + consumirProduto (id : int, qtd : int)
 
   + {static} carregar (nomeArquivo : String) : Setor
-  + {static} salvar (setor : Setor) : void
+  + salvar () : void
 }
 
 class SetorEntrada {

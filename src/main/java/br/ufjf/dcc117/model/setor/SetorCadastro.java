@@ -1,10 +1,18 @@
 package br.ufjf.dcc117.model.setor;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import br.ufjf.dcc117.model.Auxiliar;
 import br.ufjf.dcc117.model.estoque.Estoque;
 import br.ufjf.dcc117.model.estoque.Fornecedor;
-import br.ufjf.dcc117.model.estoque.Produto;
 
 public class SetorCadastro extends Setor{
 
@@ -12,11 +20,54 @@ public class SetorCadastro extends Setor{
         super(nome, senha, pedidos, estoque);
     }
 
-    private void cadastroFornecedor(Fornecedor fornecedor) {
+    public void cadastroFornecedor(String nome, String cnpj, String telefone, String endereco, String email) {
+        File file = new File(Auxiliar.path(Auxiliar.SETOR_CADASTRO, "fornecedores", "csv"));
+        Auxiliar.checkFile(file);
 
-    }
-
-    private void cadastroProduto(Produto produto) {
+        List<Fornecedor> fornecedores = carregarFornecedores(file);
         
+        int id = fornecedores.size() + 1; // Simples incremento para ID
+        Fornecedor novoFornecedor = new Fornecedor(id, nome, cnpj, telefone, endereco, email);
+
+        fornecedores.add(novoFornecedor);
+
+        salvarFornecedores(file, fornecedores);
     }
+
+    private void salvarFornecedores(File file, List<Fornecedor> fornecedores) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write("ID,Nome,CNPJ,Telefone,Endereco,Email\n");
+            for (Fornecedor fornecedor : fornecedores) {
+                writer.write(fornecedor.salvar());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar fornecedores: " + file.getAbsolutePath());
+            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private List<Fornecedor> carregarFornecedores(File file) {
+        List<Fornecedor> fornecedores = new ArrayList<>();
+        try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine(); // Pular cabeçalho, se houver
+            while ((line = reader.readLine()) != null) {
+                Fornecedor fornecedor = Fornecedor.carregar(line);
+                if (fornecedor != null) {
+                    fornecedores.add(fornecedor);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar fornecedores: " + file.getAbsolutePath());
+            return fornecedores; // Retorna lista vazia em caso de erro
+        }
+        return fornecedores;
+    }
+
+    public void cadastroProduto(String nome, int idFornecedor, String lote, Date validade) {
+        //TODO: Implementar lógica para cadastrar produto
+    }
+
 }

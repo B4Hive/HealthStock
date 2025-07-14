@@ -1,18 +1,19 @@
 package br.ufjf.dcc117.model.estoque;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import br.ufjf.dcc117.model.Auxiliar;
 
 public class Medicacao extends Produto {
 
     // << Atributos >>
-
+    
     private final String lote;
     private final Date validade;
     private String ultimoResponsavel;
     private Date dataUltimoResponsavel;
-
+    
     // << Construtor >>
 
     public Medicacao(int id, String nome, int quantidade, int idFornecedor, String lote, Date validade, String ultimoResponsavel, Date dataUltimoResponsavel) {
@@ -22,8 +23,6 @@ public class Medicacao extends Produto {
         this.ultimoResponsavel = ultimoResponsavel;
         this.dataUltimoResponsavel = dataUltimoResponsavel;
     }
-
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public static Medicacao carregar(String produto) {
         String[] partes = produto.split(",");
@@ -35,27 +34,28 @@ public class Medicacao extends Produto {
             int quantidade = Integer.parseInt(partes[2].trim());
             int idFornecedor = Integer.parseInt(partes[3].trim());
             String lote = partes[5].trim();
-            Date validade = sdf.parse(partes[6].trim());
+            Date validade = Auxiliar.SDF.parse(partes[6].trim());
             String ultimoResponsavel = partes[7].trim();
-            Date dataUltimoResponsavel = sdf.parse(partes[8].trim());
+            Date dataUltimoResponsavel = Auxiliar.SDF.parse(partes[8].trim());
 
             return new Medicacao(id, nome, quantidade, idFornecedor, lote, validade, ultimoResponsavel, dataUltimoResponsavel);
         } catch (NumberFormatException | ParseException e) {
             return null;
         }
     }
-
-    public static String salvar(Medicacao medicacao) {
+    
+    @Override
+    public String salvar() {
         StringBuilder sb = new StringBuilder();
-        sb.append(medicacao.getId()).append(",");
-        sb.append(medicacao.getNome()).append(",");
-        sb.append(medicacao.getQuantidade()).append(",");
-        sb.append(medicacao.getIdFornecedor()).append(",");
+        sb.append(this.getId()).append(",");
+        sb.append(this.getNome()).append(",");
+        sb.append(this.getQuantidade()).append(",");
+        sb.append(this.getIdFornecedor()).append(",");
         sb.append("Medicacao").append(",");
-        sb.append(medicacao.getLote()).append(",");
-        sb.append(sdf.format(medicacao.getValidade())).append(",");
-        sb.append(medicacao.getUltimoResponsavel()).append(",");
-        sb.append(sdf.format(medicacao.getDataUltimoResponsavel()));
+        sb.append(this.getLote()).append(",");
+        sb.append(Auxiliar.SDF.format(this.getValidade())).append(",");
+        sb.append(this.getUltimoResponsavel()).append(",");
+        sb.append(Auxiliar.SDF.format(this.getDataUltimoResponsavel()));
         return sb.toString();
     }
 
