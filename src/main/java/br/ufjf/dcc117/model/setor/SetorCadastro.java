@@ -7,12 +7,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import br.ufjf.dcc117.model.Auxiliar;
 import br.ufjf.dcc117.model.estoque.Estoque;
 import br.ufjf.dcc117.model.estoque.Fornecedor;
+import br.ufjf.dcc117.model.estoque.Medicacao;
+import br.ufjf.dcc117.model.estoque.Produto;
 
 public class SetorCadastro extends Setor{
 
@@ -66,8 +67,35 @@ public class SetorCadastro extends Setor{
         return fornecedores;
     }
 
-    public void cadastroProduto(String nome, int idFornecedor, String lote, Date validade) {
+    public void cadastroProduto(String nome, String tipo) {
         //TODO: Implementar lógica para cadastrar produto
+        File file = new File(Auxiliar.path(Auxiliar.SETOR_CADASTRO, "produtos", "csv"));
+        Auxiliar.checkFile(file);
+        Estoque estoque = this.getEstoque();
+        List<Produto> produtos = estoque.getProdutos();
+        int id = produtos.size() + 1; // Simples incremento para ID
+        Produto novoProduto;
+        if (tipo.equals("Medicacao")) {
+            novoProduto = new Medicacao(id, nome, 0, 0, "", null, "", null);
+        } else {
+            novoProduto = new Produto(id, nome, 0, 0);
+        }
+        produtos.add(novoProduto);
+        salvarProdutos(file, produtos);
+    }
+
+    private void salvarProdutos(File file, List<Produto> produtos) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write("ID,Nome,Quantidade,FornecedorID,Lote,Validade,UltimoResponsavel,UltimaMovimentacao\n");
+            for (Produto produto : produtos) {
+                writer.write(produto.salvar());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar produtos: " + file.getAbsolutePath());
+            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.exit(1);
+        }
     }
 
 }

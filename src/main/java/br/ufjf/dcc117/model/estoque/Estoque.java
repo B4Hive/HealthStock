@@ -111,4 +111,7 @@ public class Estoque {
         return null;
     }
     
+    public List<Produto> getProdutos() {
+        return this.produtos;
+    }
 }
