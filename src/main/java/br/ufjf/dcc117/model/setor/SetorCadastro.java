@@ -68,7 +68,6 @@ public class SetorCadastro extends Setor{
     }
 
     public void cadastroProduto(String nome, String tipo) {
-        //TODO: Implementar lógica para cadastrar produto
         File file = new File(Auxiliar.path(Auxiliar.SETOR_CADASTRO, "produtos", "csv"));
         Auxiliar.checkFile(file);
         Estoque estoque = this.getEstoque();

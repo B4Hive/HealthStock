@@ -55,13 +55,13 @@ public class Setor {
     }
 
     public static Setor carregar(String nome) {
-        Estoque estoque = Estoque.carregar(nome);
-        List<Pedido> pedidos = Pedido.carregarPedidos(nome);
         File senhaFile = new File(Auxiliar.path(nome, nome, "pw"));
         if (!senhaFile.exists()) {
             System.err.println("Arquivo de senha não encontrado para o setor: " + nome);
             return null;
         }
+        Estoque estoque = Estoque.carregar(nome);
+        List<Pedido> pedidos = Pedido.carregarPedidos(nome);
 
         String senha;
         try (BufferedReader br = new BufferedReader(new FileReader(senhaFile))) {
