@@ -43,8 +43,6 @@ public class Auxiliar {
         }
     }
 
-    // TODO: Implementar lógica de criptografia (talvez)
-
     public static String encrypt(String senha) {
         return senha;
     }

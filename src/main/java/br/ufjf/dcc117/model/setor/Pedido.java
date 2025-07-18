@@ -65,6 +65,7 @@ public class Pedido {
         List<Pedido> pedidos = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(Auxiliar.path(nomeSetor, "pedidos","csv")))) {
             String linha;
+            br.readLine();
             while ((linha = br.readLine()) != null) {
                 Pedido pedido = Pedido.carregar(linha);
                 if (pedido != null) {

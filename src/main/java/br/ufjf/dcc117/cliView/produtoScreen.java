@@ -7,18 +7,16 @@ import br.ufjf.dcc117.controller.Control;
 public class produtoScreen {
     
     public static void show(Scanner in, int produtoId) {
-        CLI.clear();
-        String[] produto = Control.getProduto(produtoId);
-        if (produto == null) {
-            System.out.println("Produto não encontrado.");
-            CLI.pause(in);
-            return;
-        }
-        String[] options = Control.getProdutoOptions();
-
         int choice = -1;
         while (choice != 0) {
             CLI.clear();
+            String[] produto = Control.getProduto(produtoId);
+            if (produto == null) {
+                System.out.println("Produto não encontrado.");
+                CLI.pause(in);
+                return;
+            }
+            String[] options = Control.getProdutoOptions();
             System.out.println("Informações do Produto:");
             System.out.println("ID: " + produto[0]);
             System.out.println("Nome: " + produto[1]);
@@ -36,13 +34,18 @@ public class produtoScreen {
             choice = in.nextInt(); in.nextLine();
             switch (choice) {
                 case 1 -> {
-                    CLI.NYI(in); // TODO: Implementar edição de produto
+                    System.out.println("Quantidade a consumir (Max:" + produto[2] + "):");
+                    int quantidade = in.nextInt(); in.nextLine();
+                    Control.consumirProduto(produtoId, quantidade);
+                    break;
                 }
                 case 2 -> {
-                    CLI.NYI(in); // TODO: Implementar consumo de produto
+                    editar(in, produtoId);
+                    break;
                 }
                 case 3 -> {
-                    CLI.NYI(in); // TODO: Implementar geração de pedido
+                    gerarPedido(in, produtoId);
+                    break;
                 }
                 case 0 -> {
                     // Voltar
@@ -54,6 +57,16 @@ public class produtoScreen {
             }
         }
         
+    }
+    
+    public static void editar(Scanner in, int produtoId) {
+        CLI.clear();
+        CLI.NYI(in); // TODO: Implementar edição de produto
+    }
+
+    public static void gerarPedido(Scanner in, int produtoId) {
+        CLI.clear();
+        CLI.NYI(in); // TODO: Implementar geração de pedido
     }
 
 }

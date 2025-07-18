@@ -22,7 +22,6 @@ public class estoqueScreen {
                 produtoScreen.show(in, choice);
             }
         }
-
     }
 
 }

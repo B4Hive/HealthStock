@@ -65,9 +65,6 @@ public class Setor {
             System.err.println(new Date() + ":Arquivo de senha não encontrado para o setor: " + nome);
             return null;
         }
-        Estoque estoque = Estoque.carregar(nome);
-        List<Pedido> pedidos = Pedido.carregarPedidos(nome);
-
         String senha;
         try (BufferedReader br = new BufferedReader(new FileReader(senhaFile))) {
             senha = Auxiliar.decrypt(br.readLine());
@@ -76,6 +73,10 @@ public class Setor {
             System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
             return null; // Retorna null em caso de erro
         }
+        
+        Estoque estoque = Estoque.carregar(nome);
+        List<Pedido> pedidos = Pedido.carregarPedidos(nome);
+
         if (estoque != null && pedidos != null) {
             return new Setor(nome, senha, pedidos, estoque);
         }
@@ -95,6 +96,8 @@ public class Setor {
 
         //Salvar Pedidos
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(Auxiliar.path(nome, "pedidos", "csv")))) {
+            bw.write("Setor Origem,Setor Destino,Data,Produto,Quantidade,Estado");
+            bw.newLine();
             for (Pedido pedido : pedidos) {
                 bw.write(pedido.salvar());
                 bw.newLine();
@@ -120,8 +123,8 @@ public class Setor {
         pedidos.add(pedido);
     }
 
-    public List<String> listarPedidos() {
-        return pedidos.stream().map(Pedido::toString).toList();
+    public List<Pedido> listarPedidos() {
+        return pedidos;
     }
     
     public List<String> listarPedidosPorEstado(String estado) {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import br.ufjf.dcc117.model.estoque.Medicacao;
 import br.ufjf.dcc117.model.estoque.Produto;
+import br.ufjf.dcc117.model.setor.Pedido;
 import br.ufjf.dcc117.model.setor.Setor;
 import br.ufjf.dcc117.model.setor.SetorCadastro;
 import br.ufjf.dcc117.model.setor.SetorEntrada;
@@ -11,15 +12,35 @@ import br.ufjf.dcc117.model.setor.SetorEntrada;
 public class Control {
     
     private static Setor setor;
+    private static String tipoSetor;
 
     public static boolean login(String nome, String senha) {
         setor = Setor.carregar(nome);
+        if (setor == null) {
+            System.err.println("Setor não encontrado: " + nome);
+            return false;
+        }
+        if (setor instanceof SetorCadastro) {
+            tipoSetor = "Cadastro";
+        } else if (setor instanceof SetorEntrada) {
+            tipoSetor = "Entrada";
+        } else if (setor instanceof Setor) {
+            tipoSetor = "Saída";
+        } else {
+            System.err.println("Tipo de setor desconhecido: " + setor.getClass().getSimpleName());
+            return false;
+        }
         return setor != null && setor.validarSenha(senha);
     }
 
     public static void logout() {
         setor.salvar();
         setor = null;
+        tipoSetor = null;
+    }
+
+    public static String getTipoSetor() {
+        return tipoSetor;
     }
 
     public static String[] getHomeOptions() {
@@ -110,4 +131,22 @@ public class Control {
         };
     }
 
+    public static void consumirProduto(int produtoId, int quantidade) {
+        if (setor == null) return;
+        setor.consumirProduto(produtoId, quantidade);
+    }
+
+    public static String[] getListaPedidos() {
+        List<Pedido> pedidos = setor.listarPedidos();
+        String[] lista = new String[pedidos.size()];
+        for (int i = 0; i < pedidos.size(); i++) {
+            lista[i] = pedidos.get(i).toString();
+        }
+        return lista;
+    }
+
+    public static String[] getPedido(int choice) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

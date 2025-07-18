@@ -16,8 +16,7 @@ public class homeScreen {
             choice = in.nextInt(); in.nextLine();
             switch(choice){
                 case 1 -> estoqueScreen.show(in);
-                case 2 -> // TODO: Implement pedidosScreen(in);
-                    CLI.NYI(in);
+                case 2 -> pedidosScreen.show(in);
                 case 3 -> // TODO: Implement fornecedorScreen(in);
                     CLI.NYI(in);
                 case 0 -> System.out.println("Exiting...");

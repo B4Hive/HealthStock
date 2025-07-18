@@ -30,7 +30,6 @@ public class CLI {
             System.out.println((i + 1) + ". " + options[i]);
         }
         System.out.println("0. Exit");
-
     }
 
     public static void NYI(Scanner in) {
