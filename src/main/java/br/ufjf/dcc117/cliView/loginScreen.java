@@ -2,7 +2,7 @@ package br.ufjf.dcc117.cliView;
 
 import java.util.Scanner;
 
-import br.ufjf.dcc117.controller.Controller;
+import br.ufjf.dcc117.controller.Control;
 
 public class loginScreen {
 
@@ -16,20 +16,22 @@ public class loginScreen {
             System.out.println();
             System.out.println("Please log in to continue.");
             System.out.println();
+
             System.out.print("Username: ");
             String username = in.nextLine();
-
+            if (username.equalsIgnoreCase("exit")) {
+                System.out.println("Exiting login...");
+                break;
+            }
             System.out.print("Password: ");
             String password = in.nextLine();
             System.out.println();
-
-            if (username.equalsIgnoreCase("exit")
-             || password.equalsIgnoreCase("exit")) {
+            if (password.equalsIgnoreCase("exit")) {
                 System.out.println("Exiting login...");
                 break;
             }
 
-            if (!Controller.login(username, password)) {
+            if (!Control.login(username, password)) {
                 System.out.println("Invalid username or password. Please try again.");
                 CLI.pause(in);
             } else {

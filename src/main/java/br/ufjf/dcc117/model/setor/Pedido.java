@@ -72,8 +72,8 @@ public class Pedido {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Erro ao carregar pedidos do setor " + nomeSetor);
-            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.err.println(new Date() + ":Erro ao carregar pedidos do setor " + nomeSetor);
+            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
             return pedidos; // Retorna lista vazia em caso de erro
         }
         return pedidos;

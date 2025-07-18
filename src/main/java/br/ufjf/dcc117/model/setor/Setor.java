@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import br.ufjf.dcc117.model.Auxiliar;
@@ -48,6 +50,9 @@ public class Setor {
         return this.estoque;
     }
     
+    public List<Produto> getProdutos() {
+        return new ArrayList<>(this.estoque.getProdutos());
+    }
     // << Métodos Setor >>
     
     public boolean validarSenha(String senha) {
@@ -57,7 +62,7 @@ public class Setor {
     public static Setor carregar(String nome) {
         File senhaFile = new File(Auxiliar.path(nome, nome, "pw"));
         if (!senhaFile.exists()) {
-            System.err.println("Arquivo de senha não encontrado para o setor: " + nome);
+            System.err.println(new Date() + ":Arquivo de senha não encontrado para o setor: " + nome);
             return null;
         }
         Estoque estoque = Estoque.carregar(nome);
@@ -67,8 +72,8 @@ public class Setor {
         try (BufferedReader br = new BufferedReader(new FileReader(senhaFile))) {
             senha = Auxiliar.decrypt(br.readLine());
         } catch (IOException e) {
-            System.err.println("Erro ao ler senha do setor " + nome);
-            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.err.println(new Date() + ":Erro ao ler senha do setor " + nome);
+            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
             return null; // Retorna null em caso de erro
         }
         if (estoque != null && pedidos != null) {
@@ -83,8 +88,8 @@ public class Setor {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(Auxiliar.path(nome, nome, "pw")))) {
             bw.write(Auxiliar.encrypt(this.senha));
         } catch (IOException e) {
-            System.err.println("Erro ao salvar senha do setor " + nome);
-            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.err.println(new Date() + ":Erro ao salvar senha do setor " + nome);
+            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
             System.exit(1); // Encerra o programa em caso de erro crítico
         }
 
@@ -95,8 +100,8 @@ public class Setor {
                 bw.newLine();
             }
         } catch (IOException e) {
-            System.err.println("Erro ao salvar pedidos do setor " + nome);
-            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.err.println(new Date() + ":Erro ao salvar pedidos do setor " + nome);
+            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
             System.exit(1); // Encerra o programa em caso de erro crítico
         }
 

@@ -38,7 +38,7 @@ public class Produto {
         */
 
         StringBuilder sb = new StringBuilder();
-        sb.append(this.getId()).append(",");
+        sb.append(this.getID()).append(",");
         sb.append(this.getNome()).append(",");
         sb.append(this.getQuantidade()).append(",");
         sb.append(this.getIdFornecedor()).append(",");
@@ -52,7 +52,7 @@ public class Produto {
 
     // << Getters e Setters >>
 
-    public int getId() {
+    public int getID() {
         return this.id;
     }
 

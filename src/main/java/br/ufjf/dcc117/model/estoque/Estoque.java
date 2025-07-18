@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,8 +44,8 @@ public class Estoque {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Erro ao carregar estoque.");
-            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.err.println(new Date() + ":Erro ao carregar estoque.");
+            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
             return new Estoque(); // Retorna um estoque vazio em caso de erro
         }
         return new Estoque(produtos);
@@ -61,8 +62,8 @@ public class Estoque {
                 writer.newLine();
             }
         } catch (IOException e) {
-            System.err.println("Erro ao salvar estoque.");
-            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.err.println(new Date() + ":Erro ao salvar estoque.");
+            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
             System.exit(1); // Encerra o programa em caso de erro crítico
         }
     }
@@ -74,7 +75,7 @@ public class Estoque {
             return;
         }
         for (Produto p : this.produtos) {
-            if (p.getId() == produto.getId()) {
+            if (p.getID() == produto.getID()) {
                 p.setQuantidade(p.getQuantidade() + produto.getQuantidade());
                 return;
             }
@@ -84,14 +85,14 @@ public class Estoque {
 
     public Produto retirarProduto(int id, int quantidade) {
         for (Produto p : this.produtos) {
-            if (p.getId() == id) {
+            if (p.getID() == id) {
                 if (p.getQuantidade() >= quantidade) {
                     p.setQuantidade(p.getQuantidade() - quantidade);
-                    return new Produto(p.getId(), p.getNome(), quantidade, p.getIdFornecedor());
+                    return new Produto(p.getID(), p.getNome(), quantidade, p.getIdFornecedor());
                 } else if (p.getQuantidade() > 0) {
                     quantidade = p.getQuantidade();
                     p.setQuantidade(0);
-                    return new Produto(p.getId(), p.getNome(), quantidade, p.getIdFornecedor());
+                    return new Produto(p.getID(), p.getNome(), quantidade, p.getIdFornecedor());
                 }
             }
         }
@@ -99,12 +100,12 @@ public class Estoque {
     }
 
     public Map<Integer, String> listarProdutos() {
-        return produtos.stream().collect(Collectors.toMap(Produto::getId, Produto::getNome));
+        return produtos.stream().collect(Collectors.toMap(Produto::getID, Produto::getNome));
     }
 
     public Produto getProduto(int id) {
         for (Produto p : this.produtos) {
-            if (p.getId() == id) {
+            if (p.getID() == id) {
                 return p;
             }
         }

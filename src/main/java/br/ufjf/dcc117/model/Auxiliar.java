@@ -3,6 +3,7 @@ package br.ufjf.dcc117.model;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Auxiliar {
 
@@ -35,8 +36,8 @@ public class Auxiliar {
                 file.getParentFile().mkdirs();
                 file.createNewFile();
             } catch (IOException e) {
-                System.err.println("Erro ao criar arquivo: " + file.getAbsolutePath());
-                System.err.println("Mensagem de erro: " + e.getMessage());
+                System.err.println(new Date() + ":Erro ao criar arquivo: " + file.getAbsolutePath());
+                System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
                 System.exit(1);
             }
         }

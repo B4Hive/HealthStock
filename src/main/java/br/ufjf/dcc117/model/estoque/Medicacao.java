@@ -47,7 +47,7 @@ public class Medicacao extends Produto {
     @Override
     public String salvar() {
         StringBuilder sb = new StringBuilder();
-        sb.append(this.getId()).append(",");
+        sb.append(this.getID()).append(",");
         sb.append(this.getNome()).append(",");
         sb.append(this.getQuantidade()).append(",");
         sb.append(this.getIdFornecedor()).append(",");

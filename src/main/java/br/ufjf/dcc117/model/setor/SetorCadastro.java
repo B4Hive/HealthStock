@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import br.ufjf.dcc117.model.Auxiliar;
@@ -43,8 +44,8 @@ public class SetorCadastro extends Setor{
                 writer.newLine();
             }
         } catch (IOException e) {
-            System.err.println("Erro ao salvar fornecedores: " + file.getAbsolutePath());
-            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.err.println(new Date() + ":Erro ao salvar fornecedores: " + file.getAbsolutePath());
+            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
             System.exit(1);
         }
     }
@@ -61,7 +62,7 @@ public class SetorCadastro extends Setor{
                 }
             }
         } catch (Exception e) {
-            System.err.println("Erro ao carregar fornecedores: " + file.getAbsolutePath());
+            System.err.println(new Date() + ":Erro ao carregar fornecedores: " + file.getAbsolutePath());
             return fornecedores; // Retorna lista vazia em caso de erro
         }
         return fornecedores;
@@ -91,8 +92,8 @@ public class SetorCadastro extends Setor{
                 writer.newLine();
             }
         } catch (IOException e) {
-            System.err.println("Erro ao salvar produtos: " + file.getAbsolutePath());
-            System.err.println("Mensagem de erro: " + e.getMessage());
+            System.err.println(new Date() + ":Erro ao salvar produtos: " + file.getAbsolutePath());
+            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
             System.exit(1);
         }
     }
