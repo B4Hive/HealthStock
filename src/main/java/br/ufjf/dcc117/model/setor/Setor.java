@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import br.ufjf.dcc117.model.Auxiliar;
@@ -62,15 +61,15 @@ public class Setor {
     public static Setor carregar(String nome) {
         File senhaFile = new File(Auxiliar.path(nome, nome, "pw"));
         if (!senhaFile.exists()) {
-            System.err.println(new Date() + ":Arquivo de senha não encontrado para o setor: " + nome);
+            Auxiliar.error("Arquivo de senha não encontrado para o setor: " + nome);
             return null;
         }
         String senha;
         try (BufferedReader br = new BufferedReader(new FileReader(senhaFile))) {
             senha = Auxiliar.decrypt(br.readLine());
         } catch (IOException e) {
-            System.err.println(new Date() + ":Erro ao ler senha do setor " + nome);
-            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Erro ao ler senha do setor " + nome);
+            Auxiliar.error("Mensagem de erro: " + e.getMessage());
             return null; // Retorna null em caso de erro
         }
         
@@ -78,6 +77,11 @@ public class Setor {
         List<Pedido> pedidos = Pedido.carregarPedidos(nome);
 
         if (estoque != null && pedidos != null) {
+            if (nome.equals(Auxiliar.SETOR_CADASTRO)) {
+                return new SetorCadastro(nome, senha, pedidos, estoque);
+            } else if (nome.equals(Auxiliar.SETOR_ENTRADA)) {
+                return new SetorEntrada(nome, senha, pedidos, estoque);
+            }
             return new Setor(nome, senha, pedidos, estoque);
         }
         return null;
@@ -89,38 +93,44 @@ public class Setor {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(Auxiliar.path(nome, nome, "pw")))) {
             bw.write(Auxiliar.encrypt(this.senha));
         } catch (IOException e) {
-            System.err.println(new Date() + ":Erro ao salvar senha do setor " + nome);
-            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Erro ao salvar senha do setor " + nome);
+            Auxiliar.error("Mensagem de erro: " + e.getMessage());
             System.exit(1); // Encerra o programa em caso de erro crítico
         }
 
+        salvarPedidos();
+
+        //Salvar Estoque
+        estoque.salvar(nome);
+    }
+
+    private void salvarPedidos() {
         //Salvar Pedidos
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(Auxiliar.path(nome, "pedidos", "csv")))) {
-            bw.write("Setor Origem,Setor Destino,Data,Produto,Quantidade,Estado");
+            bw.write("Setor Solicitante,Setor Responsavel,Data,Produto,Quantidade,Estado");
             bw.newLine();
             for (Pedido pedido : pedidos) {
                 bw.write(pedido.salvar());
                 bw.newLine();
             }
         } catch (IOException e) {
-            System.err.println(new Date() + ":Erro ao salvar pedidos do setor " + nome);
-            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Erro ao salvar pedidos do setor " + nome);
+            Auxiliar.error("Mensagem de erro: " + e.getMessage());
             System.exit(1); // Encerra o programa em caso de erro crítico
         }
-
-        //Salvar Estoque
-        estoque.salvar(nome);
     }
 
     // << Métodos de Pedido >>
     
-    public void gerarPedido(String setorDestino, String produto, int quantidade) {
-        Pedido pedido = new Pedido(this.nome, setorDestino, produto, quantidade);
+    public void gerarPedido(String setorResponsavel, String produto, int quantidade) {
+        Pedido pedido = new Pedido(this.nome, setorResponsavel, produto, quantidade);
         pedidos.add(pedido);
+        salvarPedidos();
     }
     
     public void adicionarPedido(Pedido pedido) {
         pedidos.add(pedido);
+        salvarPedidos();
     }
 
     public List<Pedido> listarPedidos() {
@@ -131,15 +141,15 @@ public class Setor {
         return pedidos.stream().filter(pedido -> estado.equals(pedido.getEstado())).map(Pedido::toString).toList();
     }
     
-    public boolean aprovarPedido(int idPedido, boolean resposta) {
-        Pedido pedido = pedidos.get(idPedido);
-        if (!pedido.getSetorDestino().equals(this.nome)) return false;
-        if (resposta) {
-            pedido.setEstado("Aprovado");
-            return true;
-        } else {
-            pedido.setEstado("Rejeitado");
-            return false;
+    public void aprovarPedido(Pedido pedido, boolean resposta) {
+        for (Pedido p : this.pedidos) {
+            if (p.compare(pedido)) {
+                if (p.getEstado().equals("Pendente")) {
+                    p.setEstado(resposta ? "Aprovado" : "Rejeitado");
+                    salvarPedidos();
+                    return;
+                }
+            }
         }
     }
 
@@ -147,14 +157,18 @@ public class Setor {
 
     public void entradaProduto(Produto produto) {
         estoque.adicionarProduto(produto);
+        estoque.salvar(nome);
     }
 
     public Produto retiradaProduto(int id, int qtd) {
-        return estoque.retirarProduto(id, qtd);
+        Produto produto = estoque.retirarProduto(id, qtd);
+        estoque.salvar(nome);
+        return produto;
     }
 
     public void consumirProduto(int id, int qtd) {
         estoque.retirarProduto(id, qtd);
+        estoque.salvar(nome);
     }
 
 }

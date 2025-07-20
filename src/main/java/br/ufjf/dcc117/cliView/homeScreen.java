@@ -6,7 +6,9 @@ import br.ufjf.dcc117.controller.Control;
 
 public class homeScreen {
 
-    public static void show(Scanner in) {
+    private static final Scanner in = new Scanner(System.in);
+
+    public static void show() {
         String[] options = Control.getHomeOptions();
         
         int choice = -1;
@@ -15,14 +17,14 @@ public class homeScreen {
             CLI.printMenu("Home Options",options);
             choice = in.nextInt(); in.nextLine();
             switch(choice){
-                case 1 -> estoqueScreen.show(in);
-                case 2 -> pedidosScreen.show(in);
-                case 3 -> // TODO: Implement fornecedorScreen(in);
-                    CLI.NYI(in);
-                case 0 -> System.out.println("Exiting...");
+                case 1 -> estoqueScreen.show();
+                case 2 -> pedidosScreen.show();
+                case 3 -> // TODO: Implement fornecedorScreen();
+                    CLI.NYI();
+                case 0 -> System.out.println("Saindo...");
                 default -> {
-                    System.out.println("Invalid option, please try again.");
-                    CLI.pause(in);
+                    System.out.println("Opção inválida, por favor tente novamente.");
+                    CLI.pause();
                 }
             }
         }

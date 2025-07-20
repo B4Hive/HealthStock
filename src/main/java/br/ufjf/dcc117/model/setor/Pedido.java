@@ -14,8 +14,8 @@ public class Pedido {
 
     // << Atributos >>
 
-    private final String setorOrigem;
-    private final String setorDestino;
+    private final String setorSolicitante;
+    private final String setorResponsavel;
     private final Date dataPedido;
     private final String produto;
     private final int quantidade;
@@ -23,18 +23,18 @@ public class Pedido {
 
     // << Construtor >>
 
-    public Pedido(String setorOrigem, String setorDestino, String produto, int quantidade) {
-        this.setorOrigem = setorOrigem;
-        this.setorDestino = setorDestino;
+    public Pedido(String setorSolicitante, String setorResponsavel, String produto, int quantidade) {
+        this.setorSolicitante = setorSolicitante;
+        this.setorResponsavel = setorResponsavel;
         this.dataPedido = new Date();
         this.produto = produto;
         this.quantidade = quantidade;
         this.estado = "Pendente";
     }
 
-    public Pedido(String setorOrigem, String setorDestino, Date dataPedido, String produto, int quantidade, String estado) {
-        this.setorOrigem = setorOrigem;
-        this.setorDestino = setorDestino;
+    public Pedido(String setorSolicitante, String setorResponsavel, Date dataPedido, String produto, int quantidade, String estado) {
+        this.setorSolicitante = setorSolicitante;
+        this.setorResponsavel = setorResponsavel;
         this.dataPedido = dataPedido;
         this.produto = produto;
         this.quantidade = quantidade;
@@ -47,14 +47,14 @@ public class Pedido {
             return null;
         }
         try {
-            String setorOrigem = partes[0].trim();
-            String setorDestino = partes[1].trim();
+            String setorSolicitante = partes[0].trim();
+            String setorResponsavel = partes[1].trim();
             Date dataPedido = Auxiliar.SDF.parse(partes[2].trim());
             String produto = partes[3].trim();
             int quantidade = Integer.parseInt(partes[4].trim());
             String estado = partes[5].trim();
 
-            Pedido pedidoObj = new Pedido(setorOrigem, setorDestino, dataPedido, produto, quantidade, estado);
+            Pedido pedidoObj = new Pedido(setorSolicitante, setorResponsavel, dataPedido, produto, quantidade, estado);
             return pedidoObj;
         } catch (NumberFormatException | ParseException e) {
             return null;
@@ -73,8 +73,8 @@ public class Pedido {
                 }
             }
         } catch (IOException e) {
-            System.err.println(new Date() + ":Erro ao carregar pedidos do setor " + nomeSetor);
-            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Erro ao carregar pedidos do setor " + nomeSetor);
+            Auxiliar.error("Mensagem de erro: " + e.getMessage());
             return pedidos; // Retorna lista vazia em caso de erro
         }
         return pedidos;
@@ -82,8 +82,8 @@ public class Pedido {
 
     public String salvar() {
         StringBuilder sb = new StringBuilder();
-        sb.append(this.getSetorOrigem()).append(",");
-        sb.append(this.getSetorDestino()).append(",");
+        sb.append(this.getSetorSolicitante()).append(",");
+        sb.append(this.getSetorResponsavel()).append(",");
         sb.append(Auxiliar.SDF.format(this.getDataPedido())).append(",");
         sb.append(this.getProduto()).append(",");
         sb.append(this.getQuantidade()).append(",");
@@ -93,12 +93,12 @@ public class Pedido {
 
     // << Getters e Setters >>
 
-    public String getSetorOrigem() {
-        return this.setorOrigem;
+    public String getSetorSolicitante() {
+        return this.setorSolicitante;
     }
 
-    public String getSetorDestino() {
-        return this.setorDestino;
+    public String getSetorResponsavel() {
+        return this.setorResponsavel;
     }
 
     public Date getDataPedido() {
@@ -125,14 +125,25 @@ public class Pedido {
 
     @Override
     public String toString() {
-        return "Pedido: " +
-                "origem = [" + this.setorOrigem + ']' +
-                ", destino = [" + this.setorDestino + ']' +
-                ", data do Pedido = [" + this.dataPedido + ']' +
-                ", produto = [" + this.produto + ']' +
-                ", quantidade = [" + this.quantidade + ']' +
-                ", estado = [" + this.estado + ']' +
+        return "Solicitante = " + this.setorSolicitante +
+                ", Responsavel = " + this.setorResponsavel +
+                ", Data do Pedido = " + this.dataPedido +
+                ", Produto = " + this.produto +
+                ", Quantidade = " + this.quantidade +
+                ", Estado = " + this.estado +
                 ';';
+    }
+
+    public boolean compare(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Pedido)) return false;
+        Pedido pedido = (Pedido) obj;
+        return this.setorSolicitante.equals(pedido.setorSolicitante) &&
+               this.setorResponsavel.equals(pedido.setorResponsavel) &&
+               this.dataPedido.equals(pedido.dataPedido) &&
+               this.produto.equals(pedido.produto) &&
+               this.quantidade == pedido.quantidade &&
+               this.estado.equals(pedido.estado);
     }
 
 }

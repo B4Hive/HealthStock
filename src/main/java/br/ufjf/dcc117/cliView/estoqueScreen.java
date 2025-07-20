@@ -6,7 +6,9 @@ import br.ufjf.dcc117.controller.Control;
 
 public class estoqueScreen {
 
-    public static void show(Scanner in) {
+    private static final Scanner in = new Scanner(System.in);
+
+    public static void show() {
         int choice = -1;
         while (choice != 0) {
             CLI.clear();

@@ -6,7 +6,9 @@ import br.ufjf.dcc117.controller.Control;
 
 public class loginScreen {
 
-    public static void show(Scanner in) {
+    private static final Scanner in = new Scanner(System.in);
+
+    public static void show() {
         while (true) {
             CLI.clear();
 
@@ -14,34 +16,36 @@ public class loginScreen {
             System.out.println("| HealthStock |");
             System.out.println("+-------------+");
             System.out.println();
-            System.out.println("Please log in to continue.");
+            System.out.println("Faça login para continuar.");
             System.out.println();
 
-            System.out.print("Username: ");
+            System.out.print("Usuário: ");
             String username = in.nextLine();
-            if (username.equalsIgnoreCase("exit")) {
-                System.out.println("Exiting login...");
+            if (username.equalsIgnoreCase("exit") || username.equalsIgnoreCase("0")) {
+                System.out.println("Saindo do login...");
                 break;
             }
-            System.out.print("Password: ");
+            System.out.print("Senha: ");
             String password = in.nextLine();
             System.out.println();
-            if (password.equalsIgnoreCase("exit")) {
-                System.out.println("Exiting login...");
+            if (password.equalsIgnoreCase("exit") || password.equalsIgnoreCase("0")) {
+                System.out.println("Saindo do login...");
                 break;
             }
 
             if (!Control.login(username, password)) {
-                System.out.println("Invalid username or password. Please try again.");
-                CLI.pause(in);
+                System.out.println("Usuário ou senha inválidos. Por favor, tente novamente.");
+                CLI.pause();
             } else {
-                System.out.println("Login successful!");
-                CLI.pause(in);
-                homeScreen.show(in);
-                System.out.println("Returning to login screen...");
+                System.out.println("Login bem-sucedido!");
+                CLI.pause();
+                homeScreen.show();
+                System.out.println("Retornando à tela de login...");
             }
         }
-        System.out.println("Closing Program...");
+        CLI.clear();
+        System.out.println("Obrigado por usar o HealthStock!");
+        System.out.println("Fechando o programa...");
     }
 
 }

@@ -48,8 +48,8 @@ class Estoque {
 }
 
 class Pedido {
-  - setorOrigem : String
-  - setorDestino : String
+  - setorSolicitante : String
+  - setorResponsavel : String
   - dataPedido : Date
   - produto : String
   - quantidade : int

@@ -1,10 +1,13 @@
 package br.ufjf.dcc117.cliView;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Scanner;
 
+import br.ufjf.dcc117.model.Auxiliar;
+
 public class CLI {
+
+    private static final Scanner in = new Scanner(System.in);
 
     public static void clear() {
         try {
@@ -14,12 +17,12 @@ public class CLI {
                 new ProcessBuilder("clear").inheritIO().start().waitFor();
             }
         } catch (IOException | InterruptedException e) {
-            System.err.println(new Date() + ": Error clearing the console: " + e.getMessage());
+            Auxiliar.error(" Error clearing the console: " + e.getMessage());
         }
     }
 
-    public static void pause(Scanner in) {
-        System.out.println("Press Enter to continue...");
+    public static void pause() {
+        System.out.println("Pressione Enter para continuar...");
         in.nextLine();
     }
 
@@ -29,13 +32,19 @@ public class CLI {
             if (options[i] == null) continue; // Skip null options
             System.out.println((i + 1) + ". " + options[i]);
         }
-        System.out.println("0. Exit");
+        System.out.println("0. Sair");
     }
 
-    public static void NYI(Scanner in) {
+    public static void NYI() {
         clear();
-        System.out.println("This feature is not yet implemented.");
-        pause(in);
+        System.out.println("Esta funcionalidade ainda não foi implementada.");
+        pause();
+    }
+
+    public static void NYI(String message) {
+        clear();
+        System.out.println("Esta funcionalidade ainda não foi implementada:" + message);
+        pause();
     }
 
 }

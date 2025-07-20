@@ -97,4 +97,9 @@ public class Medicacao extends Produto {
         setDataUltimoResponsavel(new Date());
     }
 
+    @Override
+    public Medicacao clone(int quantidade) {
+        return new Medicacao(this.getID(), this.getNome(), quantidade, this.getIdFornecedor(), this.getLote(), this.getValidade(), this.getUltimoResponsavel(), this.getDataUltimoResponsavel());
+    }
+
 }

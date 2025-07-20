@@ -22,11 +22,14 @@ public class SetorEntrada extends Setor {
         if (produto instanceof Medicacao) {
             Setor farmacia = Setor.carregar(Auxiliar.SETOR_MEDICACAO);
             if (farmacia == null) {
+                Auxiliar.error("Setor de Farmácia não encontrado para distribuição de medicamento: " + produto.getNome());
                 return;
             }
             farmacia.entradaProduto(produto);
-        } else
-        getEstoque().adicionarProduto(produto);
+        } else {
+            getEstoque().adicionarProduto(produto);
+            getEstoque().salvar(getNome());
+        }
     }
 
 }

@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,8 +43,8 @@ public class Estoque {
                 }
             }
         } catch (IOException e) {
-            System.err.println(new Date() + ":Erro ao carregar estoque.");
-            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Erro ao carregar estoque.");
+            Auxiliar.error("Mensagem de erro: " + e.getMessage());
             return new Estoque(); // Retorna um estoque vazio em caso de erro
         }
         return new Estoque(produtos);
@@ -59,11 +58,12 @@ public class Estoque {
             writer.write("ID,Nome,Quantidade,IDFornecedor,Tipo,Lote,Validade,UltimoResponsavel,DataUltimoResponsavel\n");
             for (Produto produto : this.produtos) {
                 writer.write(produto.salvar());
+                Auxiliar.error("Setor: " + setor + ", Produto: " + produto.salvar());
                 writer.newLine();
             }
         } catch (IOException e) {
-            System.err.println(new Date() + ":Erro ao salvar estoque.");
-            System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Erro ao salvar estoque.");
+            Auxiliar.error("Mensagem de erro: " + e.getMessage());
             System.exit(1); // Encerra o programa em caso de erro crítico
         }
     }
@@ -76,7 +76,8 @@ public class Estoque {
         }
         for (Produto p : this.produtos) {
             if (p.getID() == produto.getID()) {
-                p.setQuantidade(p.getQuantidade() + produto.getQuantidade());
+                int quantidade = produto.getQuantidade() + p.getQuantidade();
+                p.setQuantidade(quantidade);
                 return;
             }
         }
@@ -88,15 +89,17 @@ public class Estoque {
             if (p.getID() == id) {
                 if (p.getQuantidade() >= quantidade) {
                     p.setQuantidade(p.getQuantidade() - quantidade);
-                    return new Produto(p.getID(), p.getNome(), quantidade, p.getIdFornecedor());
+                    return p.clone(quantidade);
                 } else if (p.getQuantidade() > 0) {
                     quantidade = p.getQuantidade();
                     p.setQuantidade(0);
-                    return new Produto(p.getID(), p.getNome(), quantidade, p.getIdFornecedor());
+                    return p.clone(quantidade);
+                } else {
+                    return p.clone(0);
                 }
             }
         }
-        return null;
+        return null; // Produto não encontrado
     }
 
     public Map<Integer, String> listarProdutos() {

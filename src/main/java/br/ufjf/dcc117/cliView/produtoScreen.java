@@ -13,7 +13,7 @@ public class produtoScreen {
             String[] produto = Control.getProduto(produtoId);
             if (produto == null) {
                 System.out.println("Produto não encontrado.");
-                CLI.pause(in);
+                CLI.pause();
                 return;
             }
             String[] options = Control.getProdutoOptions();
@@ -52,7 +52,7 @@ public class produtoScreen {
                 }
                 default -> {
                     System.out.println("Opção inválida, tente novamente.");
-                    CLI.pause(in);
+                    CLI.pause();
                 }
             }
         }
@@ -61,12 +61,12 @@ public class produtoScreen {
     
     public static void editar(Scanner in, int produtoId) {
         CLI.clear();
-        CLI.NYI(in); // TODO: Implementar edição de produto
+        CLI.NYI(); // TODO: Implementar edição de produto
     }
 
     public static void gerarPedido(Scanner in, int produtoId) {
         CLI.clear();
-        CLI.NYI(in); // TODO: Implementar geração de pedido
+        CLI.NYI(); // TODO: Implementar geração de pedido
     }
 
 }

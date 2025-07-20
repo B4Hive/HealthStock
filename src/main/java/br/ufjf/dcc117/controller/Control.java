@@ -2,6 +2,7 @@ package br.ufjf.dcc117.controller;
 
 import java.util.List;
 
+import br.ufjf.dcc117.model.Auxiliar;
 import br.ufjf.dcc117.model.estoque.Medicacao;
 import br.ufjf.dcc117.model.estoque.Produto;
 import br.ufjf.dcc117.model.setor.Pedido;
@@ -12,22 +13,11 @@ import br.ufjf.dcc117.model.setor.SetorEntrada;
 public class Control {
     
     private static Setor setor;
-    private static String tipoSetor;
 
     public static boolean login(String nome, String senha) {
         setor = Setor.carregar(nome);
         if (setor == null) {
-            System.err.println("Setor não encontrado: " + nome);
-            return false;
-        }
-        if (setor instanceof SetorCadastro) {
-            tipoSetor = "Cadastro";
-        } else if (setor instanceof SetorEntrada) {
-            tipoSetor = "Entrada";
-        } else if (setor instanceof Setor) {
-            tipoSetor = "Saída";
-        } else {
-            System.err.println("Tipo de setor desconhecido: " + setor.getClass().getSimpleName());
+            Auxiliar.error("Setor não encontrado: " + nome);
             return false;
         }
         return setor != null && setor.validarSenha(senha);
@@ -36,11 +26,6 @@ public class Control {
     public static void logout() {
         setor.salvar();
         setor = null;
-        tipoSetor = null;
-    }
-
-    public static String getTipoSetor() {
-        return tipoSetor;
     }
 
     public static String[] getHomeOptions() {
@@ -146,7 +131,98 @@ public class Control {
     }
 
     public static String[] getPedido(int choice) {
-        // TODO Auto-generated method stub
-        return null;
+        List<Pedido> pedidos = setor.listarPedidos();
+        if (choice < 0 || choice >= pedidos.size()) return null;
+        Pedido pedido = pedidos.get(choice);
+        return new String[] {
+            pedido.getSetorSolicitante(),
+            pedido.getSetorResponsavel(),
+            Auxiliar.SDF.format(pedido.getDataPedido()),
+            pedido.getProduto(),
+            String.valueOf(pedido.getQuantidade()),
+            pedido.getEstado()
+        };
     }
+
+    public static boolean respostaPedido(int choice, boolean aprovado, String responsavel) {
+        List<Pedido> pedidos = setor.listarPedidos();
+        if (choice < 0 || choice >= pedidos.size()) {
+            Auxiliar.error("Pedido não encontrado.");
+            return false;
+        }
+        Pedido pedido = pedidos.get(choice);
+        if (pedido.getSetorResponsavel().equals(setor.getNome())) {
+            Setor setorSolicitante = Setor.carregar(pedido.getSetorSolicitante());
+            List<Pedido> pedidosSolicitante = setorSolicitante.listarPedidos();
+            if (aprovado) {
+                moverProduto(getProdutoId(pedido.getProduto()), pedido.getQuantidade(), pedido.getSetorSolicitante(), responsavel);
+                for (Pedido p : pedidosSolicitante) {
+                    if (p.compare(pedido)){
+                        setorSolicitante.aprovarPedido(p, true);
+                        setor.aprovarPedido(pedido, true);
+                        return true;
+                    }
+                }
+            } else {
+                for (Pedido p : pedidosSolicitante) {
+                    if (p.compare(pedido)){
+                        setorSolicitante.aprovarPedido(p, false);
+                        setor.aprovarPedido(pedido, false);
+                        return true;
+                    }
+                }
+            }
+        } else {
+            Auxiliar.error("Sem permissão para responder a este pedido.");
+            return false;
+        }
+        Auxiliar.error("Control.respostaPedido: Pedido não encontrado ou não pertence ao setor atual.");
+        return false;
+    }
+
+    private static int getProdutoId(String produtoNome) {
+        List<Produto> produtos = setor.getProdutos();
+        for (Produto p : produtos) {
+            if (p.getNome().equalsIgnoreCase(produtoNome)) {
+                return p.getID();
+            }
+        }
+        return -1; // Produto não encontrado
+    }
+
+    private static void moverProduto(int produtoId, int quantidade, String setorSolicitante, String responsavel) {
+        Setor setorSolicitanteObj = Setor.carregar(setorSolicitante);
+        if (setorSolicitanteObj == null) {
+            Auxiliar.error("Setor de solicitante não encontrado: " + setorSolicitante);
+            return;
+        }
+        Produto produto = setor.retiradaProduto(produtoId, quantidade);
+        if (produto == null) {
+            Auxiliar.error("Control.moverProduto: Produto não encontrado: " + produtoId);
+            return;
+        }
+        if (produto instanceof Medicacao m) {
+            m.atualizarResponsavel(responsavel);
+        }
+        setorSolicitanteObj.entradaProduto(produto);
+    }
+
+    public static boolean setorCadastro() {
+        return setor instanceof SetorCadastro;
+    }
+
+    public static boolean verificarProduto(String produtoNome) {
+        List<Produto> produtos = setor.getProdutos();
+        for (Produto p : produtos) {
+            if (p.getNome().equalsIgnoreCase(produtoNome)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Object getSetor() {
+        return setor != null ? setor.getNome() : null;
+    }
+
 }

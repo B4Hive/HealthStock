@@ -36,11 +36,15 @@ public class Auxiliar {
                 file.getParentFile().mkdirs();
                 file.createNewFile();
             } catch (IOException e) {
-                System.err.println(new Date() + ":Erro ao criar arquivo: " + file.getAbsolutePath());
-                System.err.println(new Date() + ":Mensagem de erro: " + e.getMessage());
+                Auxiliar.error("Erro ao criar arquivo: " + file.getAbsolutePath());
+                Auxiliar.error("Mensagem de erro: " + e.getMessage());
                 System.exit(1);
             }
         }
+    }
+
+    public static void error(String message) {
+        System.err.println(new Date() + ": " + message);
     }
 
     public static String encrypt(String senha) {

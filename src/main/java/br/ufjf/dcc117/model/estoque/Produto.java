@@ -31,12 +31,6 @@ public class Produto {
     }
 
     public String salvar() {
-        /*
-         if (this instanceof Medicacao medicacao) {
-            return medicacao.salvar();
-        }
-        */
-
         StringBuilder sb = new StringBuilder();
         sb.append(this.getID()).append(",");
         sb.append(this.getNome()).append(",");
@@ -78,6 +72,10 @@ public class Produto {
 
     public void setIdFornecedor(int idFornecedor) {
         this.idFornecedor = idFornecedor;
+    }
+
+    public Produto clone(int quantidade) {
+        return new Produto(this.id, this.nome, quantidade, this.idFornecedor);
     }
 
 }
