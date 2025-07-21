@@ -13,6 +13,15 @@
 !.vscode/extensions.json
 *.code-workspace
 
+# Arquivos de IDE (Repl.it)
+.replit
+.replit.db
+.replit.nix
+.replit.python
+.replit.nodejs
+.replit.toml
+.replit.lock
+
 # Maven
 target/
 pom.xml.tag

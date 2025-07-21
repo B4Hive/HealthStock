@@ -85,6 +85,10 @@ public class Estoque {
     }
 
     public Produto retirarProduto(int id, int quantidade) {
+        if (quantidade <= 0) {
+            Auxiliar.error("Quantidade inválida para retirada: " + quantidade);
+            return null; // Retorna null se a quantidade for inválida
+        }
         for (Produto p : this.produtos) {
             if (p.getID() == id) {
                 if (p.getQuantidade() >= quantidade) {

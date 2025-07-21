@@ -22,13 +22,13 @@ public class pedidosScreen {
             choice = in.nextInt();
             in.nextLine();
             if (choice != 0) {
-                pedidosScreen.showPedido(in, choice - 1);
+                pedidosScreen.show(choice - 1);
             }
         }
     }
 
-    private static void showPedido(Scanner in, int choice) {
-        String[] pedido = Control.getPedido(choice);
+    private static void show(int pedidoId) {
+        String[] pedido = Control.getPedido(pedidoId);
         if (pedido == null) {
             System.out.println("Pedido não encontrado.");
             CLI.pause();
@@ -38,7 +38,7 @@ public class pedidosScreen {
         int option = -1;
         while (option != 0) {
             CLI.clear();
-            System.out.println("Detalhes do Pedido " + (choice + 1) + ":");
+            System.out.println("Detalhes do Pedido " + (pedidoId + 1) + ":");
             System.out.println("Setor de Solicitante: " + pedido[0]);
             System.out.println("Setor de Responsavel: " + pedido[1]);
             System.out.println("Data do Pedido: " + pedido[2]);
@@ -57,7 +57,7 @@ public class pedidosScreen {
                     }
                     if (!Control.verificarProduto(pedido[3])) {
                         if (Control.setorCadastro()) {
-                            // TODO: Cadastrar produto se não existir
+                            // TODO: implementar Cadastro de produto
                             CLI.NYI("Cadastro de produto");
                         } else {
                             System.out.println("Produto não encontrado e setor não tem permissão para cadastrar.");
@@ -67,7 +67,7 @@ public class pedidosScreen {
                     }
                     System.out.println();
                     System.out.print("Responsável: ");
-                    if (Control.respostaPedido(choice, true, in.nextLine())) {
+                    if (Control.respostaPedido(pedidoId, true, in.nextLine())) {
                         System.out.println("Pedido aprovado com sucesso.");
                     } else {
                         System.out.println("Falha ao aprovar o pedido.");
@@ -76,7 +76,7 @@ public class pedidosScreen {
                     return;
                 }
                 case 2 -> {
-                    if (Control.respostaPedido(choice, false, null)) {
+                    if (Control.respostaPedido(pedidoId, false, null)) {
                         System.out.println("Pedido rejeitado com sucesso.");
                     } else {
                         System.out.println("Falha ao rejeitar o pedido.");

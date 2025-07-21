@@ -29,22 +29,18 @@ public class Control {
     }
 
     public static String[] getHomeOptions() {
-        if (setor instanceof Setor || setor instanceof SetorEntrada) {
-            return new String[] {
-                "Estoque",
-                "Pedidos",
-                null
-            };
-        } else if (setor instanceof SetorCadastro) {
+        if (setor instanceof SetorCadastro) {
             return new String[] {
                 "Produtos",
                 "Pedidos",
                 "Fornecedores"
             };
+        } else {
+            return new String[] {
+                "Produtos",
+                "Pedidos"
+            };
         }
-        return new String[] {
-            "Error: Unknown Setor Type"
-        };
     }
 
     public static String[] getListaProdutos() {
