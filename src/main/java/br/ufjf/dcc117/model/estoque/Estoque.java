@@ -76,6 +76,7 @@ public class Estoque {
         }
         for (Produto p : this.produtos) {
             if (p.getID() == produto.getID()) {
+                // TODO: Precisa modificar o armazenamento de medicação pra separar por lote e validade
                 int quantidade = produto.getQuantidade() + p.getQuantidade();
                 p.setQuantidade(quantidade);
                 return;
@@ -122,4 +123,5 @@ public class Estoque {
     public List<Produto> getProdutos() {
         return this.produtos;
     }
+
 }

@@ -10,7 +10,7 @@ public class Auxiliar {
     // << Constantes >>
 
     private static final String DIR_SEPARATOR = System.getProperty("file.separator");
-    public static final String PATH[] = {"src","main","resources"};
+    private static final String PATH[] = {"src","main","resources"};
     public static final String SETOR_MEDICACAO = "farmacia";
     public static final String SETOR_ENTRADA = "almoxarifado";
     public static final String SETOR_CADASTRO = "compras";
@@ -19,10 +19,14 @@ public class Auxiliar {
     // << Métodos Auxiliar >>
 
     public static String path(String setor, String arquivo, String tipo) {
+        StringBuilder sb = new StringBuilder();
+        if (setor == null && arquivo == null && tipo == null) {
+            for (String dir : PATH) sb.append(dir).append(DIR_SEPARATOR);
+            return sb.toString();
+        }
         if (setor == null || arquivo == null || tipo == null) {
             return null;
         }
-        StringBuilder sb = new StringBuilder();
         for (String dir : PATH) {
             sb.append(dir).append(DIR_SEPARATOR);
         }

@@ -47,4 +47,9 @@ public class CLI {
         pause();
     }
 
+    public static void message(String message) {
+        clear();
+        System.out.println(message);
+        pause();
+    }
 }

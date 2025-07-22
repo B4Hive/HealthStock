@@ -32,8 +32,7 @@ public class estoqueScreen {
             CLI.clear();
             String[] produto = Control.getProduto(produtoId);
             if (produto == null) {
-                System.out.println("Produto não encontrado.");
-                CLI.pause();
+                CLI.message("Produto não encontrado.");
                 return;
             }
             String[] options = Control.getProdutoOptions();
@@ -57,35 +56,60 @@ public class estoqueScreen {
                     System.out.println("Quantidade a consumir (Max:" + produto[2] + "):");
                     int quantidade = in.nextInt(); in.nextLine();
                     Control.consumirProduto(produtoId, quantidade);
-                    break;
+                    return;
                 }
                 case 2 -> {
                     editar(produtoId);
-                    break;
+                    return;
                 }
                 case 3 -> {
-                    gerarPedido(produtoId);
-                    break;
+                    pedidosScreen.gerarPedido(produtoId);
+                    return;
                 }
                 case 0 -> {
                     // Voltar
                 }
                 default -> {
-                    System.out.println("Opção inválida, tente novamente.");
-                    CLI.pause();
+                    CLI.message("Opção inválida, tente novamente.");
                 }
             }
         }
     }
 
     public static void editar(int produtoId) {
-        CLI.clear();
-        CLI.NYI(); // TODO: Implementar edição de produto
+        CLI.NYI("Edição de produto"); // TODO: Implementar edição de produto
     }
 
-    public static void gerarPedido(int produtoId) {
+    public static void cadastroProduto(String nome) {
         CLI.clear();
-        CLI.NYI(); // TODO: Implementar geração de pedido (lá na pedidosScreen)
+        if (!Control.setorCadastro()){
+            CLI.message("Setor não tem permissão para cadastrar produtos.");
+            return;
+        }
+        System.out.println("Cadastro de Produto");
+        System.out.println("Nome do Produto: " + nome);
+        CLI.printMenu("Tipo de Produto", new String[] { "Medicamento", "Produto" });
+        int tipo = in.nextInt(); in.nextLine();
+        if (tipo < 1 || tipo > 2) {
+            CLI.message("Tipo inválido, operação cancelada.");
+            return;
+        }
+        String tipoProduto = tipo == 1 ? "Medicacao" : "Produto";
+        System.out.println("Selecione o Fornecedor:");
+        String[] fornecedores = Control.listarFornecedores();
+        for (int i = 0; i < fornecedores.length; i++) {
+            System.out.println((i + 1) + " - " + fornecedores[i]);
+        }
+        int fornecedorId = in.nextInt(); in.nextLine();
+        if (fornecedorId < 1) {
+            CLI.message("Fornecedor inválido, operação cancelada.");
+            return;
+        }
+        if (Control.cadastroProduto(nome, fornecedorId, tipoProduto)){
+            CLI.message("Produto cadastrado com sucesso.");
+        } else {
+            CLI.message("Erro ao cadastrar produto.");
+        }
     }
 
 }

@@ -52,6 +52,7 @@ public class Setor {
     public List<Produto> getProdutos() {
         return new ArrayList<>(this.estoque.getProdutos());
     }
+    
     // << Métodos Setor >>
     
     public boolean validarSenha(String senha) {
@@ -77,9 +78,9 @@ public class Setor {
         List<Pedido> pedidos = Pedido.carregarPedidos(nome);
 
         if (estoque != null && pedidos != null) {
-            if (nome.equals(Auxiliar.SETOR_CADASTRO)) {
+            if (nome.equalsIgnoreCase(Auxiliar.SETOR_CADASTRO)) {
                 return new SetorCadastro(nome, senha, pedidos, estoque);
-            } else if (nome.equals(Auxiliar.SETOR_ENTRADA)) {
+            } else if (nome.equalsIgnoreCase(Auxiliar.SETOR_ENTRADA)) {
                 return new SetorEntrada(nome, senha, pedidos, estoque);
             }
             return new Setor(nome, senha, pedidos, estoque);
@@ -107,7 +108,7 @@ public class Setor {
     private void salvarPedidos() {
         //Salvar Pedidos
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(Auxiliar.path(nome, "pedidos", "csv")))) {
-            bw.write("Setor Solicitante,Setor Responsavel,Data,Produto,Quantidade,Estado");
+            bw.write("Setor Solicitante,Setor Responsavel,Data,Produto,Quantidade,Estado,Detalhes");
             bw.newLine();
             for (Pedido pedido : pedidos) {
                 bw.write(pedido.salvar());
@@ -122,12 +123,6 @@ public class Setor {
 
     // << Métodos de Pedido >>
     
-    public void gerarPedido(String setorResponsavel, String produto, int quantidade) {
-        Pedido pedido = new Pedido(this.nome, setorResponsavel, produto, quantidade);
-        pedidos.add(pedido);
-        salvarPedidos();
-    }
-    
     public void adicionarPedido(Pedido pedido) {
         pedidos.add(pedido);
         salvarPedidos();
@@ -138,13 +133,13 @@ public class Setor {
     }
     
     public List<String> listarPedidosPorEstado(String estado) {
-        return pedidos.stream().filter(pedido -> estado.equals(pedido.getEstado())).map(Pedido::toString).toList();
+        return pedidos.stream().filter(pedido -> estado.equalsIgnoreCase(pedido.getEstado())).map(Pedido::toString).toList();
     }
     
     public void aprovarPedido(Pedido pedido, boolean resposta) {
         for (Pedido p : this.pedidos) {
             if (p.compare(pedido)) {
-                if (p.getEstado().equals("Pendente")) {
+                if (p.getEstado().equalsIgnoreCase("Pendente")) {
                     p.setEstado(resposta ? "Aprovado" : "Rejeitado");
                     salvarPedidos();
                     return;

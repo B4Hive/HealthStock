@@ -21,7 +21,7 @@ public class Produto {
     public static Produto carregar(String produto) {
         String[] partes = produto.split(",");
         if (partes.length != 9) return null;
-        if (partes[4].trim().equals("Medicacao")) return Medicacao.carregar(produto);
+        if (partes[4].trim().equalsIgnoreCase("Medicacao")) return Medicacao.carregar(produto);
 
         int id = Integer.parseInt(partes[0].trim());
         String nome = partes[1].trim();

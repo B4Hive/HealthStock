@@ -20,6 +20,7 @@ public class Pedido {
     private final String produto;
     private final int quantidade;
     private String estado;
+    private String detalhes;
 
     // << Construtor >>
 
@@ -30,20 +31,22 @@ public class Pedido {
         this.produto = produto;
         this.quantidade = quantidade;
         this.estado = "Pendente";
+        this.detalhes = null;
     }
 
-    public Pedido(String setorSolicitante, String setorResponsavel, Date dataPedido, String produto, int quantidade, String estado) {
+    public Pedido(String setorSolicitante, String setorResponsavel, Date dataPedido, String produto, int quantidade, String estado, String detalhes) {
         this.setorSolicitante = setorSolicitante;
         this.setorResponsavel = setorResponsavel;
         this.dataPedido = dataPedido;
         this.produto = produto;
         this.quantidade = quantidade;
         this.estado = estado;
+        this.detalhes = detalhes;
     }
 
     public static Pedido carregar(String pedido) {
         String[] partes = pedido.split(",");
-        if (partes.length < 5) {
+        if (partes.length != 7) {
             return null;
         }
         try {
@@ -53,8 +56,12 @@ public class Pedido {
             String produto = partes[3].trim();
             int quantidade = Integer.parseInt(partes[4].trim());
             String estado = partes[5].trim();
+            String detalhes = partes[6].trim();
+            if (detalhes.isEmpty()) {
+                detalhes = null; // Se não houver detalhes, define como null
+            }
 
-            Pedido pedidoObj = new Pedido(setorSolicitante, setorResponsavel, dataPedido, produto, quantidade, estado);
+            Pedido pedidoObj = new Pedido(setorSolicitante, setorResponsavel, dataPedido, produto, quantidade, estado, detalhes);
             return pedidoObj;
         } catch (NumberFormatException | ParseException e) {
             return null;
@@ -121,6 +128,14 @@ public class Pedido {
         this.estado = estado;
     }
 
+    public String getDetalhes() {
+        return this.detalhes;
+    }
+
+    public void setDetalhes(String detalhes) {
+        this.detalhes = detalhes;
+    }
+
     // << Métodos adicionais >>
 
     @Override
@@ -138,12 +153,12 @@ public class Pedido {
         if (this == obj) return true;
         if (!(obj instanceof Pedido)) return false;
         Pedido pedido = (Pedido) obj;
-        return this.setorSolicitante.equals(pedido.setorSolicitante) &&
-               this.setorResponsavel.equals(pedido.setorResponsavel) &&
+        return this.setorSolicitante.equalsIgnoreCase(pedido.setorSolicitante) &&
+               this.setorResponsavel.equalsIgnoreCase(pedido.setorResponsavel) &&
                this.dataPedido.equals(pedido.dataPedido) &&
-               this.produto.equals(pedido.produto) &&
+               this.produto.equalsIgnoreCase(pedido.produto) &&
                this.quantidade == pedido.quantidade &&
-               this.estado.equals(pedido.estado);
+               this.estado.equalsIgnoreCase(pedido.estado);
     }
 
 }

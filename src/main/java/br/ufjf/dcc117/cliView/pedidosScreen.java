@@ -9,7 +9,7 @@ public class pedidosScreen {
     private static final Scanner in = new Scanner(System.in);
 
     public static void show() {
-        int choice = -1;
+        int choice = -99;
         while (choice != 0) {
             CLI.clear();
             String[] pedidos = Control.getListaPedidos();
@@ -18,11 +18,16 @@ public class pedidosScreen {
                 System.out.println(i + 1 + " - " + pedidos[i]);
             }
             System.out.println("0 - Voltar ao menu anterior");
+            System.out.println("-1 - Gerar novo pedido");
             System.out.print("\nEscolha um pedido:");
             choice = in.nextInt();
             in.nextLine();
             if (choice != 0) {
-                pedidosScreen.show(choice - 1);
+                if (choice == -1) {
+                    pedidosScreen.gerarPedido();
+                } else {
+                    pedidosScreen.show(choice - 1);
+                }
             }
         }
     }
@@ -30,8 +35,7 @@ public class pedidosScreen {
     private static void show(int pedidoId) {
         String[] pedido = Control.getPedido(pedidoId);
         if (pedido == null) {
-            System.out.println("Pedido não encontrado.");
-            CLI.pause();
+            CLI.message("Pedido não encontrado.");
             return;
         }
 
@@ -50,44 +54,89 @@ public class pedidosScreen {
             in.nextLine();
             switch (option) {
                 case 1 -> {
-                    if (!Control.getSetor().equals(pedido[1])) {
-                        System.out.println("Você não tem permissão para aprovar este pedido.");
-                        CLI.pause();
+                    if (!pedido[5].equalsIgnoreCase("Pendente")) {
+                        CLI.message("Pedido já foi respondido.");
+                        return;
+                    }
+                    if (!Control.getSetor().equalsIgnoreCase(pedido[1])) {
+                        CLI.message("Você não tem permissão para aprovar este pedido.");
                         return;
                     }
                     if (!Control.verificarProduto(pedido[3])) {
                         if (Control.setorCadastro()) {
-                            // TODO: implementar Cadastro de produto
-                            CLI.NYI("Cadastro de produto");
+                            estoqueScreen.cadastroProduto(pedido[3]);
                         } else {
-                            System.out.println("Produto não encontrado e setor não tem permissão para cadastrar.");
-                            CLI.pause();
+                            CLI.message("Produto não encontrado e setor não tem permissão para cadastrar.");
                             return;
                         }
                     }
+                    if (Control.produtoPrecisaDeDetalhes(pedido[3])){
+                        System.out.println("Digite o Lote do produto:");
+                        String lote = in.nextLine();
+                        System.out.println("Digite a Validade do produto (formato: YYYY-MM-DD):");
+                        String validade = in.nextLine();
+                        pedido[6] = lote + " | " + validade;
+                    }
                     System.out.println();
                     System.out.print("Responsável: ");
-                    if (Control.respostaPedido(pedidoId, true, in.nextLine())) {
-                        System.out.println("Pedido aprovado com sucesso.");
+                    if (Control.respostaPedido(pedidoId, true, in.nextLine(), pedido[6])) {
+                        CLI.message("Pedido aprovado com sucesso.");
                     } else {
-                        System.out.println("Falha ao aprovar o pedido.");
+                        CLI.message("Falha ao aprovar o pedido.");
                     }
-                    CLI.pause();
                     return;
                 }
                 case 2 -> {
-                    if (Control.respostaPedido(pedidoId, false, null)) {
-                        System.out.println("Pedido rejeitado com sucesso.");
-                    } else {
-                        System.out.println("Falha ao rejeitar o pedido.");
+                    if (!pedido[5].equalsIgnoreCase("Pendente")) {
+                        CLI.message("Pedido já foi respondido.");
+                        return;
                     }
-                    CLI.pause();
+                    if (Control.respostaPedido(pedidoId, false, null, null)) {
+                        CLI.message("Pedido rejeitado com sucesso.");
+                    } else {
+                        CLI.message("Falha ao rejeitar o pedido.");
+                    }
                     return;
                 }
                 case 0 -> {
                 }
-                default -> System.out.println("Opção inválida.");
+                default -> CLI.message("Opção inválida.");
             }
+        }
+    }
+
+    private static void gerarPedido() {
+        CLI.clear();
+        String[] produtos = Control.listarProdutosCadastrados();
+        System.out.println("Produtos cadastrados:");
+        for (String produto : produtos) {
+            System.out.println("ID: " + produto);
+        }
+        System.out.println("ID: -1 - Não cadastrado");
+        System.out.print("Digite o ID do produto ou 0 para cancelar: ");
+        int produtoId = in.nextInt();
+        if (produtoId == 0)
+            return;
+        if (produtoId == -1) {
+            System.out.print("Digite o nome do produto: ");
+            String nomeProduto = in.nextLine();
+            if (Control.gerarPedido(nomeProduto)) {
+                CLI.message("Pedido de cadastro gerado com sucesso.");
+            } else {
+                CLI.message("Falha ao gerar pedido de cadastro.");
+            }
+        } else {
+            gerarPedido(produtoId);
+        }
+    }
+
+    public static void gerarPedido(int produtoId) {
+        System.out.print("Digite a quantidade: ");
+        int quantidade = in.nextInt();
+        if (Control.gerarPedido(produtoId, quantidade)) {
+            CLI.message("Pedido gerado com sucesso.");
+        } else {
+            CLI.message("Falha ao gerar pedido.");
         }
     }
 

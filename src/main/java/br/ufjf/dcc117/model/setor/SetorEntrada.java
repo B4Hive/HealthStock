@@ -17,9 +17,10 @@ public class SetorEntrada extends Setor {
     public void entradaProduto(Produto produto) {
         distribuirProduto(produto);
     }
-
+    
     private void distribuirProduto(Produto produto) {
         if (produto instanceof Medicacao) {
+            // TODO: Precisa de validação de lote e validade
             Setor farmacia = Setor.carregar(Auxiliar.SETOR_MEDICACAO);
             if (farmacia == null) {
                 Auxiliar.error("Setor de Farmácia não encontrado para distribuição de medicamento: " + produto.getNome());

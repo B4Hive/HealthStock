@@ -49,7 +49,7 @@ public class SetorCadastro extends Setor{
         }
     }
 
-    private List<Fornecedor> carregarFornecedores(File file) {
+    public List<Fornecedor> carregarFornecedores(File file) {
         List<Fornecedor> fornecedores = new ArrayList<>();
         try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -67,17 +67,31 @@ public class SetorCadastro extends Setor{
         return fornecedores;
     }
 
-    public void cadastroProduto(String nome, String tipo) {
+    public List<Fornecedor> getFornecedores() {
+        File file = new File(Auxiliar.path(Auxiliar.SETOR_CADASTRO, "fornecedores", "csv"));
+        Auxiliar.checkFile(file);
+        return carregarFornecedores(file);
+    }
+
+    public Fornecedor getFornecedor(int id) {
+        for (Fornecedor fornecedor : getFornecedores()) {
+            if (fornecedor.getId() == id) {
+                return fornecedor;
+            }
+        }
+        return null; // Retorna null se não encontrar o fornecedor
+    }
+
+    public void cadastroProduto(String nome, int fornecedorId, String tipo) {
         File file = new File(Auxiliar.path(Auxiliar.SETOR_CADASTRO, "produtos", "csv"));
         Auxiliar.checkFile(file);
-        Estoque estoque = this.getEstoque();
-        List<Produto> produtos = estoque.getProdutos();
-        int id = produtos.size() + 1; // Simples incremento para ID
+        List<Produto> produtos = this.getProdutos();
+        int id = produtos.size() + 1;
         Produto novoProduto;
-        if (tipo.equals("Medicacao")) {
-            novoProduto = new Medicacao(id, nome, 0, 0, "", null, "", null);
+        if (tipo.equalsIgnoreCase("Medicacao")) {
+            novoProduto = new Medicacao(id, nome, 0, fornecedorId, null, null, null, null);
         } else {
-            novoProduto = new Produto(id, nome, 0, 0);
+            novoProduto = new Produto(id, nome, 0, fornecedorId);
         }
         produtos.add(novoProduto);
         salvarProdutos(file, produtos);
@@ -95,6 +109,11 @@ public class SetorCadastro extends Setor{
             Auxiliar.error("Mensagem de erro: " + e.getMessage());
             System.exit(1);
         }
+    }
+
+    @Override
+    public void entradaProduto(Produto produto) {
+        Auxiliar.error("Entrada de produto no setor de cadastro");
     }
 
     @Override

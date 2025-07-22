@@ -20,11 +20,10 @@ public class homeScreen {
                 case 1 -> estoqueScreen.show();
                 case 2 -> pedidosScreen.show();
                 case 3 -> // TODO: Implementar fornecedorScreen() com show, show(int), editar(int), cadastrar()
-                    CLI.NYI();
+                    CLI.NYI("Tela de Fornecedores");
                 case 0 -> System.out.println("Saindo...");
                 default -> {
-                    System.out.println("Opção inválida, por favor tente novamente.");
-                    CLI.pause();
+                    CLI.message("Opção inválida, por favor tente novamente.");
                 }
             }
         }

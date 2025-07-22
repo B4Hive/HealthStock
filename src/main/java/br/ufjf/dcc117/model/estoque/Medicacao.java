@@ -9,8 +9,8 @@ public class Medicacao extends Produto {
 
     // << Atributos >>
     
-    private final String lote;
-    private final Date validade;
+    private String lote;
+    private Date validade;
     private String ultimoResponsavel;
     private Date dataUltimoResponsavel;
     
@@ -26,7 +26,7 @@ public class Medicacao extends Produto {
 
     public static Medicacao carregar(String produto) {
         String[] partes = produto.split(",");
-        if (partes.length != 9 || !partes[4].trim().equals("Medicacao")) return null;
+        if (partes.length != 9 || !partes[4].trim().equalsIgnoreCase("Medicacao")) return null;
 
         try {
             int id = Integer.parseInt(partes[0].trim());
@@ -100,6 +100,18 @@ public class Medicacao extends Produto {
     @Override
     public Medicacao clone(int quantidade) {
         return new Medicacao(this.getID(), this.getNome(), quantidade, this.getIdFornecedor(), this.getLote(), this.getValidade(), this.getUltimoResponsavel(), this.getDataUltimoResponsavel());
+    }
+
+    public void atualizarDetalhes(String detalhes) {
+        String[] partes = detalhes.split(" \\| ");
+        if (partes.length == 2) {
+            this.lote = partes[0].trim();
+            try {
+                this.validade = Auxiliar.SDF.parse(partes[1].trim());
+            } catch (ParseException ex) {
+                Auxiliar.error("Erro ao atualizar validade: " + ex.getMessage());
+            }
+        }
     }
 
 }

@@ -34,13 +34,11 @@ public class loginScreen {
             }
 
             if (!Control.login(username, password)) {
-                System.out.println("Usuário ou senha inválidos. Por favor, tente novamente.");
-                CLI.pause();
+                CLI.message("Usuário ou senha inválidos. Por favor, tente novamente.");
             } else {
-                System.out.println("Login bem-sucedido!");
-                CLI.pause();
+                CLI.message("Login bem-sucedido!");
                 homeScreen.show();
-                System.out.println("Retornando à tela de login...");
+                CLI.message("Retornando à tela de login...");
             }
         }
         CLI.clear();
