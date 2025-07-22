@@ -57,7 +57,7 @@ public class Pedido {
             int quantidade = Integer.parseInt(partes[4].trim());
             String estado = partes[5].trim();
             String detalhes = partes[6].trim();
-            if (detalhes.isEmpty()) {
+            if (detalhes.isEmpty() || detalhes.equalsIgnoreCase("null")) {
                 detalhes = null; // Se não houver detalhes, define como null
             }
 
@@ -94,7 +94,8 @@ public class Pedido {
         sb.append(Auxiliar.SDF.format(this.getDataPedido())).append(",");
         sb.append(this.getProduto()).append(",");
         sb.append(this.getQuantidade()).append(",");
-        sb.append(this.getEstado());
+        sb.append(this.getEstado()).append(",")
+        .append(this.getDetalhes() != null ? this.getDetalhes() : "NULL");
         return sb.toString();
     }
 

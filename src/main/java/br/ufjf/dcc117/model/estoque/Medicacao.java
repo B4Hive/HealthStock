@@ -34,12 +34,22 @@ public class Medicacao extends Produto {
             int quantidade = Integer.parseInt(partes[2].trim());
             int idFornecedor = Integer.parseInt(partes[3].trim());
             String lote = partes[5].trim();
-            Date validade = Auxiliar.SDF.parse(partes[6].trim());
+            Date validade = null;
+            try {
+                validade = Auxiliar.SDF.parse(partes[6].trim());
+            } catch (ParseException e) {
+                Auxiliar.error("Erro ao carregar validade: " + e.getMessage());
+            }
             String ultimoResponsavel = partes[7].trim();
-            Date dataUltimoResponsavel = Auxiliar.SDF.parse(partes[8].trim());
+            Date dataUltimoResponsavel = null;
+            try {
+                dataUltimoResponsavel = Auxiliar.SDF.parse(partes[8].trim());
+            } catch (ParseException e) {
+                Auxiliar.error("Erro ao carregar data do último responsável: " + e.getMessage());
+            }
 
             return new Medicacao(id, nome, quantidade, idFornecedor, lote, validade, ultimoResponsavel, dataUltimoResponsavel);
-        } catch (NumberFormatException | ParseException e) {
+        } catch (NumberFormatException e) {
             return null;
         }
     }
@@ -53,9 +63,19 @@ public class Medicacao extends Produto {
         sb.append(this.getIdFornecedor()).append(",");
         sb.append("Medicacao").append(",");
         sb.append(this.getLote()).append(",");
-        sb.append(Auxiliar.SDF.format(this.getValidade())).append(",");
+        try {
+            sb.append(Auxiliar.SDF.format(this.getValidade())).append(",");
+        } catch (Exception e) {
+            Auxiliar.error("Erro ao formatar validade: " + e.getMessage());
+            sb.append("NULL").append(",");
+        }
         sb.append(this.getUltimoResponsavel()).append(",");
-        sb.append(Auxiliar.SDF.format(this.getDataUltimoResponsavel()));
+        try {
+            sb.append(Auxiliar.SDF.format(this.getDataUltimoResponsavel()));
+        } catch (Exception e) {
+            Auxiliar.error("Erro ao formatar data do último responsável: " + e.getMessage());
+            sb.append("NULL");
+        }
         return sb.toString();
     }
 

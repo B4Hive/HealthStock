@@ -143,7 +143,8 @@ public class Control {
                 Auxiliar.SDF.format(pedido.getDataPedido()),
                 pedido.getProduto(),
                 String.valueOf(pedido.getQuantidade()),
-                pedido.getEstado()
+                pedido.getEstado(),
+                pedido.getDetalhes() != null ? pedido.getDetalhes() : ""
         };
     }
 
@@ -160,6 +161,7 @@ public class Control {
             if (aprovado) {
                 moverProduto(getProdutoId(pedido.getProduto()), pedido.getQuantidade(), pedido.getSetorSolicitante(),
                         responsavel, detalhes);
+                // TODO: Ao aprovar cadastro de medicação o tratamento deveria ser diferente mas depende do armazenamento de medicamento ser aprimorado
                 for (Pedido p : pedidosSolicitante) {
                     if (p.compare(pedido)) {
                         setorSolicitante.aprovarPedido(p, true);

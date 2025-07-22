@@ -83,7 +83,7 @@ public class SetorCadastro extends Setor{
     }
 
     public void cadastroProduto(String nome, int fornecedorId, String tipo) {
-        File file = new File(Auxiliar.path(Auxiliar.SETOR_CADASTRO, "produtos", "csv"));
+        File file = new File(Auxiliar.path(Auxiliar.SETOR_CADASTRO, "estoque", "csv"));
         Auxiliar.checkFile(file);
         List<Produto> produtos = this.getProdutos();
         int id = produtos.size() + 1;

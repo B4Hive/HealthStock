@@ -20,8 +20,7 @@ public class pedidosScreen {
             System.out.println("0 - Voltar ao menu anterior");
             System.out.println("-1 - Gerar novo pedido");
             System.out.print("\nEscolha um pedido:");
-            choice = in.nextInt();
-            in.nextLine();
+            choice = in.nextInt(); in.nextLine();
             if (choice != 0) {
                 if (choice == -1) {
                     pedidosScreen.gerarPedido();
@@ -50,8 +49,7 @@ public class pedidosScreen {
             System.out.println("Quantidade: " + pedido[4]);
             System.out.println("Status: " + pedido[5]);
             CLI.printMenu("Opções", new String[] { "Aprovar Pedido", "Rejeitar Pedido" });
-            option = in.nextInt();
-            in.nextLine();
+            option = in.nextInt(); in.nextLine();
             switch (option) {
                 case 1 -> {
                     if (!pedido[5].equalsIgnoreCase("Pendente")) {
@@ -114,7 +112,7 @@ public class pedidosScreen {
         }
         System.out.println("ID: -1 - Não cadastrado");
         System.out.print("Digite o ID do produto ou 0 para cancelar: ");
-        int produtoId = in.nextInt();
+        int produtoId = in.nextInt(); in.nextLine();
         if (produtoId == 0)
             return;
         if (produtoId == -1) {
@@ -132,7 +130,7 @@ public class pedidosScreen {
 
     public static void gerarPedido(int produtoId) {
         System.out.print("Digite a quantidade: ");
-        int quantidade = in.nextInt();
+        int quantidade = in.nextInt(); in.nextLine();
         if (Control.gerarPedido(produtoId, quantidade)) {
             CLI.message("Pedido gerado com sucesso.");
         } else {
