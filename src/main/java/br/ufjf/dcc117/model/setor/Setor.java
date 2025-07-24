@@ -62,15 +62,14 @@ public class Setor {
     public static Setor carregar(String nome) {
         File senhaFile = new File(Auxiliar.path(nome, nome, "pw"));
         if (!senhaFile.exists()) {
-            Auxiliar.error("Arquivo de senha não encontrado para o setor: " + nome);
+            Auxiliar.error("Setor.carregar: Arquivo de senha não encontrado para o setor: " + nome);
             return null;
         }
         String senha;
         try (BufferedReader br = new BufferedReader(new FileReader(senhaFile))) {
             senha = Auxiliar.decrypt(br.readLine());
         } catch (IOException e) {
-            Auxiliar.error("Erro ao ler senha do setor " + nome);
-            Auxiliar.error("Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Setor.carregar: Erro ao ler senha do setor " + nome + ". Mensagem de erro: " + e.getMessage());
             return null; // Retorna null em caso de erro
         }
         
@@ -94,8 +93,7 @@ public class Setor {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(Auxiliar.path(nome, nome, "pw")))) {
             bw.write(Auxiliar.encrypt(this.senha));
         } catch (IOException e) {
-            Auxiliar.error("Erro ao salvar senha do setor " + nome);
-            Auxiliar.error("Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Setor.salvar: Erro ao salvar senha do setor " + nome + ". Mensagem de erro: " + e.getMessage());
             System.exit(1); // Encerra o programa em caso de erro crítico
         }
 
@@ -115,8 +113,7 @@ public class Setor {
                 bw.newLine();
             }
         } catch (IOException e) {
-            Auxiliar.error("Erro ao salvar pedidos do setor " + nome);
-            Auxiliar.error("Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Setor.salvarPedidos: Erro ao salvar pedidos do setor " + nome + ". Mensagem de erro: " + e.getMessage());
             System.exit(1); // Encerra o programa em caso de erro crítico
         }
     }

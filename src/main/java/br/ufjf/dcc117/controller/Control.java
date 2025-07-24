@@ -18,7 +18,7 @@ public class Control {
     public static boolean login(String nome, String senha) {
         setor = Setor.carregar(nome);
         if (setor == null) {
-            Auxiliar.error("Setor não encontrado: " + nome);
+            Auxiliar.error("Control.login:Setor não encontrado: " + nome);
             return false;
         }
         return setor != null && setor.validarSenha(senha);
@@ -151,7 +151,7 @@ public class Control {
     public static boolean respostaPedido(int choice, boolean aprovado, String responsavel, String detalhes) {
         List<Pedido> pedidos = setor.listarPedidos();
         if (choice < 0 || choice >= pedidos.size()) {
-            Auxiliar.error("Pedido não encontrado.");
+            Auxiliar.error("Control.respostaPedido: Pedido não encontrado.");
             return false;
         }
         Pedido pedido = pedidos.get(choice);
@@ -182,7 +182,7 @@ public class Control {
                 }
             }
         } else {
-            Auxiliar.error("Sem permissão para responder a este pedido.");
+            Auxiliar.error("Control.respostaPedido: Sem permissão para responder a este pedido.");
             return false;
         }
         Auxiliar.error("Control.respostaPedido: Pedido não encontrado ou não pertence ao setor atual.");
@@ -202,7 +202,7 @@ public class Control {
     private static void moverProduto(int produtoId, int quantidade, String setorSolicitante, String responsavel, String detalhes) {
         Setor setorSolicitanteObj = Setor.carregar(setorSolicitante);
         if (setorSolicitanteObj == null) {
-            Auxiliar.error("Setor de solicitante não encontrado: " + setorSolicitante);
+            Auxiliar.error("Control.moverProduto: Setor de solicitante não encontrado: " + setorSolicitante);
             return;
         }
         Produto produto = setor.retiradaProduto(produtoId, quantidade);
@@ -249,7 +249,7 @@ public class Control {
                 String nomeProduto = p.getNome();
                 String setorSolicitante = setor.getNome();
                 if (setorSolicitante.equals(Auxiliar.SETOR_CADASTRO)) {
-                    Auxiliar.error("Não é permitido gerar pedidos do setor de cadastro.");
+                    Auxiliar.error("Control.gerarPedido: Não é permitido gerar pedidos do setor de cadastro.");
                     return false;
                 }
                 String setorResponsavel;
@@ -271,7 +271,7 @@ public class Control {
                 return true;
             }
         }
-        Auxiliar.error("Produto não encontrado: " + produtoId);
+        Auxiliar.error("Control.gerarPedido: Produto não encontrado: " + produtoId);
         return false;
     }
 
@@ -280,13 +280,13 @@ public class Control {
         List<Produto> produtos = Setor.carregar(Auxiliar.SETOR_CADASTRO).getProdutos();
         for (Produto p : produtos) {
             if (p.getNome().equalsIgnoreCase(nomeProduto)) {
-                Auxiliar.error("Produto já cadastrado: " + nomeProduto);
+                Auxiliar.error("Control.gerarPedido: Produto já cadastrado: " + nomeProduto);
                 return false;
             }
         }
         String setorSolicitante = setor.getNome();
         if (setorSolicitante.equals(Auxiliar.SETOR_CADASTRO)) {
-            Auxiliar.error("Não é permitido gerar pedidos do setor de cadastro.");
+            Auxiliar.error("Control.gerarPedido: Não é permitido gerar pedidos do setor de cadastro.");
             return false;
         }
         Pedido pedido = new Pedido(setorSolicitante, Auxiliar.SETOR_CADASTRO, nomeProduto, 0);
@@ -323,13 +323,13 @@ public class Control {
     public static boolean cadastroProduto(String nome, int fornecedorId, String tipoProduto) {
         if (setor instanceof SetorCadastro s) {
             if (s.getFornecedor(fornecedorId) == null) {
-                Auxiliar.error("Fornecedor não encontrado: " + fornecedorId);
+                Auxiliar.error("Control.cadastroProduto: Fornecedor não encontrado: " + fornecedorId);
                 return false;
             }
             s.cadastroProduto(nome, fornecedorId, tipoProduto);
             return true;
         } else {
-            Auxiliar.error("Setor não tem permissão para cadastrar produtos.");
+            Auxiliar.error("Control.cadastroProduto: Setor não tem permissão para cadastrar produtos.");
         }
         return false;
     }

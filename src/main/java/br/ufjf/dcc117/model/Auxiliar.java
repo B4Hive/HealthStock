@@ -40,8 +40,7 @@ public class Auxiliar {
                 file.getParentFile().mkdirs();
                 file.createNewFile();
             } catch (IOException e) {
-                Auxiliar.error("Erro ao criar arquivo: " + file.getAbsolutePath());
-                Auxiliar.error("Mensagem de erro: " + e.getMessage());
+                Auxiliar.error("Auxiliar.checkFile: Erro ao criar arquivo: " + file.getAbsolutePath() + "; Mensagem de erro: " + e.getMessage());
                 System.exit(1);
             }
         }

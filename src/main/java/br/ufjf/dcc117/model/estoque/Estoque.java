@@ -43,8 +43,7 @@ public class Estoque {
                 }
             }
         } catch (IOException e) {
-            Auxiliar.error("Erro ao carregar estoque.");
-            Auxiliar.error("Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Estoque.carregar: Erro ao carregar estoque. Mensagem de erro: " + e.getMessage());
             Estoque estoque = new Estoque();
             estoque.salvar(setor); // Tenta salvar o estoque vazio
             Estoque.carregar(setor);
@@ -60,12 +59,11 @@ public class Estoque {
             writer.write("ID,Nome,Quantidade,IDFornecedor,Tipo,Lote,Validade,UltimoResponsavel,DataUltimoResponsavel\n");
             for (Produto produto : this.produtos) {
                 writer.write(produto.salvar());
-                Auxiliar.error("Setor: " + setor + ", Produto: " + produto.salvar());
+                Auxiliar.error("Estoque.salvar: Setor: " + setor + ", Produto: " + produto.salvar());
                 writer.newLine();
             }
         } catch (IOException e) {
-            Auxiliar.error("Erro ao salvar estoque.");
-            Auxiliar.error("Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Estoque.salvar: Erro ao salvar estoque. Mensagem de erro: " + e.getMessage());
             System.exit(1); // Encerra o programa em caso de erro crítico
         }
     }
@@ -88,7 +86,7 @@ public class Estoque {
 
     public Produto retirarProduto(int id, int quantidade) {
         if (quantidade < 0) {
-            Auxiliar.error("Quantidade inválida para retirada: " + quantidade);
+            Auxiliar.error("Estoque.retirarProduto: Quantidade inválida para retirada: " + quantidade);
             return null; // Retorna null se a quantidade for inválida
         }
         for (Produto p : this.produtos) {

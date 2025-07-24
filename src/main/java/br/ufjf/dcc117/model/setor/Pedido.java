@@ -80,8 +80,7 @@ public class Pedido {
                 }
             }
         } catch (IOException e) {
-            Auxiliar.error("Erro ao carregar pedidos do setor " + nomeSetor);
-            Auxiliar.error("Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("Pedido.carregarPedidos: Erro ao carregar pedidos do setor " + nomeSetor + ". Mensagem de erro: " + e.getMessage());
             return pedidos; // Retorna lista vazia em caso de erro
         }
         return pedidos;

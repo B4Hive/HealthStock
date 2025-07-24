@@ -38,14 +38,14 @@ public class Medicacao extends Produto {
             try {
                 validade = Auxiliar.SDF.parse(partes[6].trim());
             } catch (ParseException e) {
-                Auxiliar.error("Erro ao carregar validade: " + e.getMessage());
+                Auxiliar.error("Medicacao.carregar: Erro ao carregar validade: " + e.getMessage());
             }
             String ultimoResponsavel = partes[7].trim();
             Date dataUltimoResponsavel = null;
             try {
                 dataUltimoResponsavel = Auxiliar.SDF.parse(partes[8].trim());
             } catch (ParseException e) {
-                Auxiliar.error("Erro ao carregar data do último responsável: " + e.getMessage());
+                Auxiliar.error("Medicacao.carregar: Erro ao carregar data do último responsável: " + e.getMessage());
             }
 
             return new Medicacao(id, nome, quantidade, idFornecedor, lote, validade, ultimoResponsavel, dataUltimoResponsavel);
@@ -66,14 +66,14 @@ public class Medicacao extends Produto {
         try {
             sb.append(Auxiliar.SDF.format(this.getValidade())).append(",");
         } catch (Exception e) {
-            Auxiliar.error("Erro ao formatar validade: " + e.getMessage());
+            Auxiliar.error("Medicacao.salvar: Erro ao formatar validade: " + e.getMessage());
             sb.append("NULL").append(",");
         }
         sb.append(this.getUltimoResponsavel()).append(",");
         try {
             sb.append(Auxiliar.SDF.format(this.getDataUltimoResponsavel()));
         } catch (Exception e) {
-            Auxiliar.error("Erro ao formatar data do último responsável: " + e.getMessage());
+            Auxiliar.error("Medicacao.salvar: Erro ao formatar data do último responsável: " + e.getMessage());
             sb.append("NULL");
         }
         return sb.toString();
@@ -133,7 +133,7 @@ public class Medicacao extends Produto {
             try {
                 this.validade = Auxiliar.SDF.parse(partes[1].trim());
             } catch (ParseException ex) {
-                Auxiliar.error("Erro ao atualizar validade: " + ex.getMessage());
+                Auxiliar.error("Medicacao.atualizarDetalhes: Erro ao atualizar validade: " + ex.getMessage());
             }
         }
     }

@@ -17,7 +17,7 @@ public class CLI {
                 new ProcessBuilder("clear").inheritIO().start().waitFor();
             }
         } catch (IOException | InterruptedException e) {
-            Auxiliar.error(" Error clearing the console: " + e.getMessage());
+            Auxiliar.error("CLI.clear: Error clearing the console: " + e.getMessage());
         }
     }
 

@@ -43,8 +43,7 @@ public class SetorCadastro extends Setor{
                 writer.newLine();
             }
         } catch (IOException e) {
-            Auxiliar.error("Erro ao salvar fornecedores: " + file.getAbsolutePath());
-            Auxiliar.error("Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("SetorCadastro.salvarFornecedores: Erro ao salvar fornecedores: " + file.getAbsolutePath() + ". Mensagem de erro: " + e.getMessage());
             System.exit(1);
         }
     }
@@ -61,7 +60,7 @@ public class SetorCadastro extends Setor{
                 }
             }
         } catch (Exception e) {
-            Auxiliar.error("Erro ao carregar fornecedores: " + file.getAbsolutePath());
+            Auxiliar.error("SetorCadastro.carregarFornecedores: Erro ao carregar fornecedores: " + file.getAbsolutePath() + ". Mensagem de erro: " + e.getMessage());
             return fornecedores; // Retorna lista vazia em caso de erro
         }
         return fornecedores;
@@ -101,20 +100,18 @@ public class SetorCadastro extends Setor{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write("ID,Nome,Quantidade,FornecedorID,Lote,Validade,UltimoResponsavel,UltimaMovimentacao\n");
             for (Produto produto : produtos) {
-                Auxiliar.error("SetorCadastro.salvarProdutos: " + produto.salvar());
                 writer.write(produto.salvar());
                 writer.newLine();
             }
         } catch (IOException e) {
-            Auxiliar.error("Erro ao salvar produtos: " + file.getAbsolutePath());
-            Auxiliar.error("Mensagem de erro: " + e.getMessage());
+            Auxiliar.error("SetorCadastro.salvarProdutos: Erro ao salvar produtos: " + file.getAbsolutePath() + ". Mensagem de erro: " + e.getMessage());
             System.exit(1);
         }
     }
 
     @Override
     public void entradaProduto(Produto produto) {
-        Auxiliar.error("Entrada de produto no setor de cadastro");
+        Auxiliar.error("SetorCadastro.entradaProduto: Entrada de produto no setor de cadastro");
     }
 
     @Override
