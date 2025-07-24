@@ -3,6 +3,9 @@ package br.ufjf.dcc117.cliView;
 import java.util.Scanner;
 
 import br.ufjf.dcc117.controller.Control;
+import br.ufjf.dcc117.controller.EstoqueControl;
+import br.ufjf.dcc117.controller.FornecedorControl;
+import br.ufjf.dcc117.controller.HomeControl;
 
 public class estoqueScreen {
 
@@ -12,7 +15,7 @@ public class estoqueScreen {
         int choice = -1;
         while (choice != 0) {
             CLI.clear();
-            String[] produtos = Control.getListaProdutos();
+            String[] produtos = EstoqueControl.getListaProdutos();
             System.out.println("Lista de Produtos no Estoque:");
             for (String p : produtos) {
                 System.out.println(p);
@@ -30,12 +33,12 @@ public class estoqueScreen {
         int choice = -1;
         while (choice != 0) {
             CLI.clear();
-            String[] produto = Control.getProduto(produtoId);
+            String[] produto = EstoqueControl.getProduto(produtoId);
             if (produto == null) {
                 CLI.message("Produto não encontrado.");
                 return;
             }
-            String[] options = Control.getProdutoOptions();
+            String[] options = HomeControl.getProdutoOptions();
             System.out.println("Informações do Produto:");
             System.out.println("ID: " + produto[0]);
             System.out.println("Nome: " + produto[1]);
@@ -55,7 +58,7 @@ public class estoqueScreen {
                 case 1 -> {
                     System.out.println("Quantidade a consumir (Max:" + produto[2] + "):");
                     int quantidade = in.nextInt(); in.nextLine();
-                    Control.consumirProduto(produtoId, quantidade);
+                    EstoqueControl.consumirProduto(produtoId, quantidade);
                     return;
                 }
                 case 2 -> {
@@ -96,7 +99,7 @@ public class estoqueScreen {
         }
         String tipoProduto = tipo == 1 ? "Medicacao" : "Produto";
         System.out.println("Selecione o Fornecedor:");
-        String[] fornecedores = Control.listarFornecedores();
+        String[] fornecedores = FornecedorControl.listarFornecedores();
         for (int i = 0; i < fornecedores.length; i++) {
             System.out.println((i + 1) + " - " + fornecedores[i]);
         }
@@ -105,7 +108,7 @@ public class estoqueScreen {
             CLI.message("Fornecedor inválido, operação cancelada.");
             return;
         }
-        if (Control.cadastroProduto(nome, fornecedorId, tipoProduto)){
+        if (EstoqueControl.cadastroProduto(nome, fornecedorId, tipoProduto)){
             CLI.message("Produto cadastrado com sucesso.");
         } else {
             CLI.message("Erro ao cadastrar produto.");

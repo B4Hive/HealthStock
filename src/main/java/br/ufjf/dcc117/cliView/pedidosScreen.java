@@ -3,6 +3,8 @@ package br.ufjf.dcc117.cliView;
 import java.util.Scanner;
 
 import br.ufjf.dcc117.controller.Control;
+import br.ufjf.dcc117.controller.EstoqueControl;
+import br.ufjf.dcc117.controller.PedidosControl;
 
 public class pedidosScreen {
 
@@ -12,7 +14,7 @@ public class pedidosScreen {
         int choice = -99;
         while (choice != 0) {
             CLI.clear();
-            String[] pedidos = Control.getListaPedidos();
+            String[] pedidos = PedidosControl.getListaPedidos();
             System.out.println("Lista de Pedidos:");
             for (int i = 0; i < pedidos.length; i++) {
                 System.out.println(i + 1 + " - " + pedidos[i]);
@@ -32,7 +34,7 @@ public class pedidosScreen {
     }
 
     private static void show(int pedidoId) {
-        String[] pedido = Control.getPedido(pedidoId);
+        String[] pedido = PedidosControl.getPedido(pedidoId);
         if (pedido == null) {
             CLI.message("Pedido não encontrado.");
             return;
@@ -60,7 +62,7 @@ public class pedidosScreen {
                         CLI.message("Você não tem permissão para aprovar este pedido.");
                         return;
                     }
-                    if (!Control.verificarProduto(pedido[3])) {
+                    if (!EstoqueControl.verificarProduto(pedido[3])) {
                         if (Control.setorCadastro()) {
                             estoqueScreen.cadastroProduto(pedido[3]);
                         } else {
@@ -68,7 +70,7 @@ public class pedidosScreen {
                             return;
                         }
                     }
-                    if (Control.produtoPrecisaDeDetalhes(pedido[3])){
+                    if (EstoqueControl.produtoPrecisaDeDetalhes(pedido[3])){
                         System.out.println("Digite o Lote do produto:");
                         String lote = in.nextLine();
                         System.out.println("Digite a Validade do produto (formato: YYYY-MM-DD):");
@@ -81,7 +83,7 @@ public class pedidosScreen {
                         System.out.print("Responsável: ");
                         responsavel = in.nextLine();
                     }
-                    if (Control.respostaPedido(pedidoId, true, responsavel, pedido[6])) {
+                    if (PedidosControl.respostaPedido(pedidoId, true, responsavel, pedido[6])) {
                         CLI.message("Pedido aprovado com sucesso.");
                     } else {
                         CLI.message("Falha ao aprovar o pedido.");
@@ -93,7 +95,7 @@ public class pedidosScreen {
                         CLI.message("Pedido já foi respondido.");
                         return;
                     }
-                    if (Control.respostaPedido(pedidoId, false, null, null)) {
+                    if (PedidosControl.respostaPedido(pedidoId, false, null, null)) {
                         CLI.message("Pedido rejeitado com sucesso.");
                     } else {
                         CLI.message("Falha ao rejeitar o pedido.");
@@ -109,7 +111,7 @@ public class pedidosScreen {
 
     private static void gerarPedido() {
         CLI.clear();
-        String[] produtos = Control.listarProdutosCadastrados();
+        String[] produtos = EstoqueControl.listarProdutosCadastrados();
         System.out.println("Produtos cadastrados:");
         for (String produto : produtos) {
             System.out.println("ID: " + produto);
@@ -122,7 +124,7 @@ public class pedidosScreen {
         if (produtoId == -1) {
             System.out.print("Digite o nome do produto: ");
             String nomeProduto = in.nextLine();
-            if (Control.gerarPedido(nomeProduto)) {
+            if (PedidosControl.gerarPedido(nomeProduto)) {
                 CLI.message("Pedido de cadastro gerado com sucesso.");
             } else {
                 CLI.message("Falha ao gerar pedido de cadastro.");
@@ -135,7 +137,7 @@ public class pedidosScreen {
     public static void gerarPedido(int produtoId) {
         System.out.print("Digite a quantidade: ");
         int quantidade = in.nextInt(); in.nextLine();
-        if (Control.gerarPedido(produtoId, quantidade)) {
+        if (PedidosControl.gerarPedido(produtoId, quantidade)) {
             CLI.message("Pedido gerado com sucesso.");
         } else {
             CLI.message("Falha ao gerar pedido.");
