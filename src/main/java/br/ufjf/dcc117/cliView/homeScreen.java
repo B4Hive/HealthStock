@@ -14,17 +14,14 @@ public class homeScreen {
         int choice = -1;
         while (choice != 0) {
             CLI.clear();
-            CLI.printMenu("Home Options",options);
+            CLI.printMenu(Control.getSetor() + " Options",options);
             choice = in.nextInt(); in.nextLine();
             switch(choice){
                 case 1 -> estoqueScreen.show();
                 case 2 -> pedidosScreen.show();
-                case 3 -> // TODO: Implementar fornecedorScreen() com show, show(int), editar(int), cadastrar()
-                    CLI.NYI("Tela de Fornecedores");
+                case 3 -> fornecedorScreen.show();
                 case 0 -> System.out.println("Saindo...");
-                default -> {
-                    CLI.message("Opção inválida, por favor tente novamente.");
-                }
+                default -> CLI.message("Opção inválida, por favor tente novamente.");
             }
         }
         Control.logout();
