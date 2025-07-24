@@ -75,9 +75,13 @@ public class pedidosScreen {
                         String validade = in.nextLine();
                         pedido[6] = lote + " | " + validade;
                     }
-                    System.out.println();
-                    System.out.print("Responsável: ");
-                    if (Control.respostaPedido(pedidoId, true, in.nextLine(), pedido[6])) {
+                    String responsavel = null;
+                    if(!pedido[4].equals("0")){
+                        System.out.println();
+                        System.out.print("Responsável: ");
+                        responsavel = in.nextLine();
+                    }
+                    if (Control.respostaPedido(pedidoId, true, responsavel, pedido[6])) {
                         CLI.message("Pedido aprovado com sucesso.");
                     } else {
                         CLI.message("Falha ao aprovar o pedido.");

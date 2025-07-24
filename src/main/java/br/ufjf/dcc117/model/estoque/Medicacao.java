@@ -122,6 +122,10 @@ public class Medicacao extends Produto {
         return new Medicacao(this.getID(), this.getNome(), quantidade, this.getIdFornecedor(), this.getLote(), this.getValidade(), this.getUltimoResponsavel(), this.getDataUltimoResponsavel());
     }
 
+    public Medicacao clone(int quantidade, int novoID){
+        return new Medicacao(novoID, this.getNome(), quantidade, this.getIdFornecedor(), this.getLote(), this.getValidade(), this.getUltimoResponsavel(), this.getDataUltimoResponsavel());
+    }
+
     public void atualizarDetalhes(String detalhes) {
         String[] partes = detalhes.split(" \\| ");
         if (partes.length == 2) {

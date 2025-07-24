@@ -45,7 +45,9 @@ public class Estoque {
         } catch (IOException e) {
             Auxiliar.error("Erro ao carregar estoque.");
             Auxiliar.error("Mensagem de erro: " + e.getMessage());
-            return new Estoque(); // Retorna um estoque vazio em caso de erro
+            Estoque estoque = new Estoque();
+            estoque.salvar(setor); // Tenta salvar o estoque vazio
+            Estoque.carregar(setor);
         }
         return new Estoque(produtos);
     }
@@ -76,7 +78,6 @@ public class Estoque {
         }
         for (Produto p : this.produtos) {
             if (p.getID() == produto.getID()) {
-                // TODO: Precisa modificar o armazenamento de medicação pra separar por lote e validade
                 int quantidade = produto.getQuantidade() + p.getQuantidade();
                 p.setQuantidade(quantidade);
                 return;
@@ -86,7 +87,7 @@ public class Estoque {
     }
 
     public Produto retirarProduto(int id, int quantidade) {
-        if (quantidade <= 0) {
+        if (quantidade < 0) {
             Auxiliar.error("Quantidade inválida para retirada: " + quantidade);
             return null; // Retorna null se a quantidade for inválida
         }

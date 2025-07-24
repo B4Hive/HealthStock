@@ -25,7 +25,7 @@ public class Control {
     }
 
     public static void logout() {
-        setor.salvar();
+        //setor.salvar();
         setor = null;
     }
 
@@ -127,7 +127,7 @@ public class Control {
         List<Pedido> pedidos = setor.listarPedidos();
         String[] lista = new String[pedidos.size()];
         for (int i = 0; i < pedidos.size(); i++) {
-            lista[i] = pedidos.get(i).toString();
+            lista[i] = pedidos.get(i).getProduto() + " - " + pedidos.get(i).getEstado();
         }
         return lista;
     }
@@ -159,9 +159,12 @@ public class Control {
             Setor setorSolicitante = Setor.carregar(pedido.getSetorSolicitante());
             List<Pedido> pedidosSolicitante = setorSolicitante.listarPedidos();
             if (aprovado) {
-                moverProduto(getProdutoId(pedido.getProduto()), pedido.getQuantidade(), pedido.getSetorSolicitante(),
-                        responsavel, detalhes);
-                // TODO: Ao aprovar cadastro de medicação o tratamento deveria ser diferente mas depende do armazenamento de medicamento ser aprimorado
+                if (pedido.getSetorResponsavel().equalsIgnoreCase(Auxiliar.SETOR_CADASTRO)) {
+                    moverProduto(getProdutoId(pedido.getProduto()), pedido.getQuantidade(), Auxiliar.SETOR_ENTRADA, responsavel, detalhes);
+                } else {
+                    moverProduto(getProdutoId(pedido.getProduto()), pedido.getQuantidade(), pedido.getSetorSolicitante(), responsavel, detalhes);
+                }
+                
                 for (Pedido p : pedidosSolicitante) {
                     if (p.compare(pedido)) {
                         setorSolicitante.aprovarPedido(p, true);
@@ -239,6 +242,7 @@ public class Control {
     }
 
     public static boolean gerarPedido(int produtoId, int quantidade) {
+        // Pedido de transferencia/compra de produto
         List<Produto> produtos = Setor.carregar(Auxiliar.SETOR_CADASTRO).getProdutos();
         for (Produto p : produtos) {
             if (p.getID() == produtoId) {
@@ -251,16 +255,19 @@ public class Control {
                 String setorResponsavel;
                 if (p instanceof Medicacao) {
                     setorResponsavel = Auxiliar.SETOR_MEDICACAO;
+                    // Se for medicamento, o responsável é a farmacia
                 } else {
                     setorResponsavel = Auxiliar.SETOR_ENTRADA;
+                    // Se for produto comum, o responsável é o almoxarifado
                 }
                 if (setorResponsavel.equals(setorSolicitante)) {
                     setorResponsavel = Auxiliar.SETOR_CADASTRO;
+                    // Se o setor solicitante for o mesmo do responsável, direciona para o setor de cadastro
                 }
                 Pedido pedido = new Pedido(setorSolicitante, setorResponsavel, nomeProduto, quantidade);
 
                 Setor.carregar(setorResponsavel).adicionarPedido(pedido);
-                setor.adicionarPedido(pedido);
+                Setor.carregar(setorSolicitante).adicionarPedido(pedido);
                 return true;
             }
         }
@@ -269,6 +276,7 @@ public class Control {
     }
 
     public static boolean gerarPedido(String nomeProduto) {
+        // Pedido de cadastro de produto
         List<Produto> produtos = Setor.carregar(Auxiliar.SETOR_CADASTRO).getProdutos();
         for (Produto p : produtos) {
             if (p.getNome().equalsIgnoreCase(nomeProduto)) {

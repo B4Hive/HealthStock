@@ -101,6 +101,7 @@ public class SetorCadastro extends Setor{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write("ID,Nome,Quantidade,FornecedorID,Lote,Validade,UltimoResponsavel,UltimaMovimentacao\n");
             for (Produto produto : produtos) {
+                Auxiliar.error("SetorCadastro.salvarProdutos: " + produto.salvar());
                 writer.write(produto.salvar());
                 writer.newLine();
             }
@@ -119,6 +120,12 @@ public class SetorCadastro extends Setor{
     @Override
     public Produto retiradaProduto(int id, int quantidade) {
         Produto produtoModelo = getEstoque().getProduto(id);
+        if (produtoModelo instanceof Medicacao medicacao) {
+            int novoID = getEstoque().getProdutos().size() + 1; // Novo ID para o clone
+            produtoModelo = medicacao.clone(0, novoID);
+            getEstoque().adicionarProduto(produtoModelo);
+            salvar();
+        }
         if (produtoModelo != null) {
             Produto novoProduto = produtoModelo.clone(quantidade);
             return novoProduto;
