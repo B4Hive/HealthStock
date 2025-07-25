@@ -98,6 +98,7 @@ public class PedidosControl extends Control {
             return;
         }
         if (produto instanceof Medicacao m) {
+            // TODO: if (m.verificarValidade()) {} // impedir movimentação de medicamentos vencidos
             m.atualizarDetalhes(detalhes);
             m.atualizarResponsavel(responsavel);
         }
