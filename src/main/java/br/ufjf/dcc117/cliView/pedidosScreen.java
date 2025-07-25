@@ -15,13 +15,8 @@ public class pedidosScreen {
         while (choice != 0) {
             CLI.clear();
             String[] pedidos = PedidosControl.getListaPedidos();
-            System.out.println("Lista de Pedidos:");
-            for (int i = 0; i < pedidos.length; i++) {
-                System.out.println(i + 1 + " - " + pedidos[i]);
-            }
-            System.out.println("0 - Voltar ao menu anterior");
+            CLI.printMenu("Lista de Pedidos", pedidos);
             System.out.println("-1 - Gerar novo pedido");
-            System.out.print("\nEscolha um pedido:");
             choice = in.nextInt(); in.nextLine();
             if (choice != 0) {
                 if (choice == -1) {
@@ -65,6 +60,10 @@ public class pedidosScreen {
                     if (!EstoqueControl.verificarProduto(pedido[3])) {
                         if (Control.setorCadastro()) {
                             estoqueScreen.cadastroProduto(pedido[3]);
+                            if (!EstoqueControl.verificarProduto(pedido[3])) {
+                                CLI.message("Erro ao cadastrar produto. Verifique os detalhes e tente novamente.");
+                                return;
+                            }
                         } else {
                             CLI.message("Produto não encontrado e setor não tem permissão para cadastrar.");
                             return;
@@ -78,13 +77,14 @@ public class pedidosScreen {
                         pedido[6] = lote + " | " + validade;
                     }
                     String responsavel = null;
-                    if(!pedido[4].equals("0")){
+                    if(!pedido[4].equals("0")){ // pedido[4] é a quantidade
                         System.out.println();
                         System.out.print("Responsável: ");
                         responsavel = in.nextLine();
                     }
                     if (PedidosControl.respostaPedido(pedidoId, true, responsavel, pedido[6])) {
                         CLI.message("Pedido aprovado com sucesso.");
+                        // TODO: em caso de cadastro, verificar se o cadastro foi concluído com sucesso antes de aprovar
                     } else {
                         CLI.message("Falha ao aprovar o pedido.");
                     }

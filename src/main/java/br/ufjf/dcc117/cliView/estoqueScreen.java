@@ -38,7 +38,6 @@ public class estoqueScreen {
                 CLI.message("Produto não encontrado.");
                 return;
             }
-            String[] options = HomeControl.getProdutoOptions();
             System.out.println("Informações do Produto:");
             System.out.println("ID: " + produto[0]);
             System.out.println("Nome: " + produto[1]);
@@ -52,6 +51,7 @@ public class estoqueScreen {
             }
             System.out.println();
             
+            String[] options = HomeControl.getProdutoOptions();
             CLI.printMenu("Opções do Produto", options);
             choice = in.nextInt(); in.nextLine();
             switch (choice) {
@@ -100,18 +100,18 @@ public class estoqueScreen {
         String tipoProduto = tipo == 1 ? "Medicacao" : "Produto";
         System.out.println("Selecione o Fornecedor:");
         String[] fornecedores = FornecedorControl.listarFornecedores();
-        for (int i = 0; i < fornecedores.length; i++) {
-            System.out.println((i + 1) + " - " + fornecedores[i]);
-        }
+        CLI.printMenu("Fornecedores", fornecedores);
         int fornecedorId = in.nextInt(); in.nextLine();
-        if (fornecedorId < 1) {
-            CLI.message("Fornecedor inválido, operação cancelada.");
-            return;
-        }
-        if (EstoqueControl.cadastroProduto(nome, fornecedorId, tipoProduto)){
-            CLI.message("Produto cadastrado com sucesso.");
+        if (fornecedorId > 0 && fornecedorId <= fornecedores.length) {
+            if (EstoqueControl.cadastroProduto(nome, fornecedorId, tipoProduto)){
+                CLI.message("Produto cadastrado com sucesso.");
+            } else {
+                CLI.message("Erro ao cadastrar produto.");
+            }
+        } else if (fornecedorId == 0) {
+            CLI.message("Cadastro de produto cancelado.");
         } else {
-            CLI.message("Erro ao cadastrar produto.");
+            CLI.message("Fornecedor inválido, operação cancelada.");
         }
     }
 

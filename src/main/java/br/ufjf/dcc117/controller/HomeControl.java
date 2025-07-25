@@ -1,7 +1,6 @@
 package br.ufjf.dcc117.controller;
 
 import br.ufjf.dcc117.model.setor.SetorCadastro;
-import br.ufjf.dcc117.model.setor.SetorEntrada;
 
 public class HomeControl extends Control {
 
@@ -27,15 +26,13 @@ public class HomeControl extends Control {
                     "Editar Produto",
                     null
             };
-        } else if (setor instanceof SetorEntrada) {
+        } else {
             return new String[] {
                     "Consumir Produto",
                     null,
                     "Gerar Pedido"
             };
         }
-        return new String[] {
-                "Error: Unknown Setor Type"
-        };
     }
+
 }

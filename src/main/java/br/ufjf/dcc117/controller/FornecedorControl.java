@@ -2,6 +2,7 @@ package br.ufjf.dcc117.controller;
 
 import java.util.List;
 
+import br.ufjf.dcc117.cliView.CLI;
 import br.ufjf.dcc117.model.Auxiliar;
 import br.ufjf.dcc117.model.estoque.Fornecedor;
 import br.ufjf.dcc117.model.setor.Setor;
@@ -18,5 +19,31 @@ public class FornecedorControl extends Control {
             lista[i] = fornecedores.get(i).getId() + " - " + fornecedores.get(i).getNome();
         }
         return lista;
+    }
+
+    public static String[] getFornecedor(int fornecedorId) {
+        SetorCadastro setorCadastro = (SetorCadastro) Setor.carregar(Auxiliar.SETOR_CADASTRO);
+        Fornecedor fornecedor = setorCadastro.getFornecedor(fornecedorId);
+        if (fornecedor == null) {
+            return null;
+        }
+        return new String[]{
+            String.valueOf(fornecedor.getId()),
+            fornecedor.getNome(),
+            fornecedor.getCnpj(),
+            fornecedor.getTelefone(),
+            fornecedor.getEndereco(),
+            fornecedor.getEmail()
+        };
+    }
+
+    public static boolean cadastrarFornecedor(String nome, String cnpj, String telefone, String endereco, String email) {
+        SetorCadastro setorCadastro = (SetorCadastro) Setor.carregar(Auxiliar.SETOR_CADASTRO);
+        if (setorCadastro == null) {
+            CLI.message("Erro ao carregar o setor de cadastro.");
+            return false;
+        }
+        setorCadastro.cadastroFornecedor(nome, cnpj, telefone, endereco, email);
+        return true;
     }
 }

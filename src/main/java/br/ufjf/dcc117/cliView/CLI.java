@@ -32,7 +32,7 @@ public class CLI {
             if (options[i] == null) continue; // Skip null options
             System.out.println((i + 1) + ". " + options[i]);
         }
-        System.out.println("0. Sair");
+        System.out.println("0. Voltar");
     }
 
     public static void NYI() {
