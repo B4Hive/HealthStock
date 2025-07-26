@@ -1,8 +1,10 @@
 package br.ufjf.dcc117.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import br.ufjf.dcc117.model.Auxiliar;
+import br.ufjf.dcc117.model.PersistenceService;
 import br.ufjf.dcc117.model.estoque.Medicacao;
 import br.ufjf.dcc117.model.estoque.Produto;
 import br.ufjf.dcc117.model.setor.Pedido;
@@ -14,20 +16,21 @@ public class PedidosControl extends Control {
         List<Pedido> pedidos = setor.listarPedidos();
         String[] lista = new String[pedidos.size()];
         for (int i = 0; i < pedidos.size(); i++) {
-            lista[i] = pedidos.get(i).getProduto() + " - " + pedidos.get(i).getEstado();
+            lista[i] = "ID: " + pedidos.get(i).getId() + " - " + pedidos.get(i).getProduto() + " - " + pedidos.get(i).getEstado();
         }
         return lista;
     }
 
-    public static String[] getPedido(int choice) {
-        List<Pedido> pedidos = setor.listarPedidos();
-        if (choice < 0 || choice >= pedidos.size())
+    public static String[] getPedido(int pedidoId) {
+        Pedido pedido = PersistenceService.carregarPedidos(p -> p.getId() == pedidoId).stream().findFirst().orElse(null);
+        if (pedido == null)
             return null;
-        Pedido pedido = pedidos.get(choice);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         return new String[] {
+                String.valueOf(pedido.getId()),
                 pedido.getSetorSolicitante(),
                 pedido.getSetorResponsavel(),
-                Auxiliar.SDF.format(pedido.getDataPedido()),
+                sdf.format(pedido.getDataPedido()),
                 pedido.getProduto(),
                 String.valueOf(pedido.getQuantidade()),
                 pedido.getEstado(),
@@ -35,49 +38,34 @@ public class PedidosControl extends Control {
         };
     }
 
-    public static boolean respostaPedido(int choice, boolean aprovado, String responsavel, String detalhes) {
-        List<Pedido> pedidos = setor.listarPedidos();
-        if (choice < 0 || choice >= pedidos.size()) {
+    public static boolean respostaPedido(int pedidoId, boolean aprovado, String responsavel, String detalhes) {
+        Pedido pedido = PersistenceService.carregarPedidos(p -> p.getId() == pedidoId).stream().findFirst().orElse(null);
+
+        if (pedido == null) {
             Auxiliar.error("Control.respostaPedido: Pedido não encontrado.");
             return false;
         }
-        Pedido pedido = pedidos.get(choice);
-        if (pedido.getSetorResponsavel().equalsIgnoreCase(setor.getNome())) {
-            Setor setorSolicitante = Setor.carregar(pedido.getSetorSolicitante());
-            List<Pedido> pedidosSolicitante = setorSolicitante.listarPedidos();
-            if (aprovado) {
-                if (pedido.getSetorResponsavel().equalsIgnoreCase(Auxiliar.SETOR_CADASTRO)) {
-                    moverProduto(getProdutoId(pedido.getProduto()), pedido.getQuantidade(), Auxiliar.SETOR_ENTRADA, responsavel, detalhes);
-                } else {
-                    moverProduto(getProdutoId(pedido.getProduto()), pedido.getQuantidade(), pedido.getSetorSolicitante(), responsavel, detalhes);
-                }
-                
-                for (Pedido p : pedidosSolicitante) {
-                    if (p.compare(pedido)) {
-                        setorSolicitante.aprovarPedido(p, true);
-                        setor.aprovarPedido(pedido, true);
-                        return true;
-                    }
-                }
+
+        if (aprovado) {
+            boolean movido;
+            if (pedido.getSetorResponsavel().equalsIgnoreCase(Auxiliar.SETOR_CADASTRO)) {
+                movido = moverProduto(getProdutoId(pedido.getProduto()), pedido.getQuantidade(), Auxiliar.SETOR_ENTRADA, responsavel, detalhes);
             } else {
-                for (Pedido p : pedidosSolicitante) {
-                    if (p.compare(pedido)) {
-                        setorSolicitante.aprovarPedido(p, false);
-                        setor.aprovarPedido(pedido, false);
-                        return true;
-                    }
-                }
+                movido = moverProduto(getProdutoId(pedido.getProduto()), pedido.getQuantidade(), pedido.getSetorSolicitante(), responsavel, detalhes);
             }
-        } else {
-            Auxiliar.error("Control.respostaPedido: Sem permissão para responder a este pedido.");
-            return false;
+            if (!movido) {
+                Auxiliar.error("Control.respostaPedido: Falha ao mover produto.");
+                return false;
+            }
         }
-        Auxiliar.error("Control.respostaPedido: Pedido não encontrado ou não pertence ao setor atual.");
-        return false;
+        
+        // Atualiza o estado do pedido
+        setor.aprovarPedido(pedido, aprovado);
+        return true;
     }
 
     private static int getProdutoId(String produtoNome) {
-        List<Produto> produtos = Setor.carregar(Auxiliar.SETOR_CADASTRO).getProdutos();
+        List<Produto> produtos = PersistenceService.carregarProdutos(p -> p.getSetor().equalsIgnoreCase(Auxiliar.SETOR_CADASTRO));
         for (Produto p : produtos) {
             if (p.getNome().equalsIgnoreCase(produtoNome)) {
                 return p.getID();
@@ -86,23 +74,30 @@ public class PedidosControl extends Control {
         return -1; // Produto não encontrado
     }
 
-    private static void moverProduto(int produtoId, int quantidade, String setorSolicitante, String responsavel, String detalhes) {
-        Setor setorSolicitanteObj = Setor.carregar(setorSolicitante);
-        if (setorSolicitanteObj == null) {
-            Auxiliar.error("Control.moverProduto: Setor de solicitante não encontrado: " + setorSolicitante);
-            return;
+    private static boolean moverProduto(int produtoId, int quantidade, String setorDestino, String responsavel, String detalhes) {
+        Setor setorDestinoObj = Setor.carregar(setorDestino);
+        if (setorDestinoObj == null) {
+            Auxiliar.error("Control.moverProduto: Setor de destino não encontrado: " + setorDestino);
+            return false;
         }
+        
+        // A retirada é sempre do setor logado (responsável pelo pedido)
         Produto produto = setor.retiradaProduto(produtoId, quantidade);
         if (produto == null) {
-            Auxiliar.error("Control.moverProduto: Produto não encontrado: " + produtoId);
-            return;
+            Auxiliar.error("Control.moverProduto: Produto não encontrado ou sem estoque: " + produtoId);
+            return false;
         }
+
         if (produto instanceof Medicacao m) {
-            // TODO: if (m.verificarValidade()) {} // impedir movimentação de medicamentos vencidos
+            if (!m.verificarValidade()) {
+                Auxiliar.error("Control.moverProduto: Medicamento inválido ou vencido: " + produtoId);
+                return false;
+            }
             m.atualizarDetalhes(detalhes);
             m.atualizarResponsavel(responsavel);
         }
-        setorSolicitanteObj.entradaProduto(produto);
+        setorDestinoObj.entradaProduto(produto);
+        return true;
     }
 
     public static boolean gerarPedido(int produtoId, int quantidade) {
@@ -121,17 +116,18 @@ public class PedidosControl extends Control {
                     setorResponsavel = Auxiliar.SETOR_MEDICACAO;
                     // Se for medicamento, o responsável é a farmacia
                 } else {
-                    setorResponsavel = Auxiliar.SETOR_ENTRADA;
+                    setorResponsavel = "almoxarifado";
                     // Se for produto comum, o responsável é o almoxarifado
                 }
                 if (setorResponsavel.equals(setorSolicitante)) {
                     setorResponsavel = Auxiliar.SETOR_CADASTRO;
                     // Se o setor solicitante for o mesmo do responsável, direciona para o setor de cadastro
                 }
-                Pedido pedido = new Pedido(setorSolicitante, setorResponsavel, nomeProduto, quantidade);
-
-                Setor.carregar(setorResponsavel).adicionarPedido(pedido);
-                Setor.carregar(setorSolicitante).adicionarPedido(pedido);
+                int pedidoId = PersistenceService.getNextPedidoId();
+                Pedido pedido = new Pedido(pedidoId, setorSolicitante, setorResponsavel, nomeProduto, quantidade);
+                
+                // Salva o pedido uma única vez
+                PersistenceService.salvarPedido(pedido);
                 return true;
             }
         }
@@ -153,9 +149,11 @@ public class PedidosControl extends Control {
             Auxiliar.error("Control.gerarPedido: Não é permitido gerar pedidos do setor de cadastro.");
             return false;
         }
-        Pedido pedido = new Pedido(setorSolicitante, Auxiliar.SETOR_CADASTRO, nomeProduto, 0);
-        Setor.carregar(Auxiliar.SETOR_CADASTRO).adicionarPedido(pedido);
-        setor.adicionarPedido(pedido);
+        int pedidoId = PersistenceService.getNextPedidoId();
+        Pedido pedido = new Pedido(pedidoId, setorSolicitante, Auxiliar.SETOR_CADASTRO, nomeProduto, 0);
+        
+        // Salva o pedido uma única vez
+        PersistenceService.salvarPedido(pedido);
         return true;
     }
 }

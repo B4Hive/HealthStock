@@ -1,6 +1,7 @@
 package br.ufjf.dcc117.model.estoque;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import br.ufjf.dcc117.model.Auxiliar;
@@ -16,68 +17,20 @@ public class Medicacao extends Produto {
     
     // << Construtor >>
 
-    public Medicacao(int id, String nome, int quantidade, int idFornecedor, String lote, Date validade, String ultimoResponsavel, Date dataUltimoResponsavel) {
-        super(id, nome, quantidade, idFornecedor);
+    public Medicacao(int id, String nome, int quantidade, int idFornecedor, String setor, String lote, Date validade, String ultimoResponsavel, Date dataUltimoResponsavel) {
+        super(id, nome, quantidade, idFornecedor, setor);
         this.lote = lote;
         this.validade = validade;
         this.ultimoResponsavel = ultimoResponsavel;
         this.dataUltimoResponsavel = dataUltimoResponsavel;
     }
 
-    public static Medicacao carregar(String produto) {
-        String[] partes = produto.split(",");
-        if (partes.length != 9 || !partes[4].trim().equalsIgnoreCase("Medicacao")) return null;
-
-        try {
-            int id = Integer.parseInt(partes[0].trim());
-            String nome = partes[1].trim();
-            int quantidade = Integer.parseInt(partes[2].trim());
-            int idFornecedor = Integer.parseInt(partes[3].trim());
-            String lote = partes[5].trim();
-            Date validade = null;
-            try {
-                validade = Auxiliar.SDF.parse(partes[6].trim());
-            } catch (ParseException e) {
-                Auxiliar.error("Medicacao.carregar: Erro ao carregar validade: " + e.getMessage());
-            }
-            String ultimoResponsavel = partes[7].trim();
-            Date dataUltimoResponsavel = null;
-            try {
-                dataUltimoResponsavel = Auxiliar.SDF.parse(partes[8].trim());
-            } catch (ParseException e) {
-                Auxiliar.error("Medicacao.carregar: Erro ao carregar data do último responsável: " + e.getMessage());
-            }
-
-            return new Medicacao(id, nome, quantidade, idFornecedor, lote, validade, ultimoResponsavel, dataUltimoResponsavel);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
+    // O método carregar foi movido para PersistenceService
+    // public static Medicacao carregar(String produto) { ... }
     
-    @Override
-    public String salvar() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.getID()).append(",");
-        sb.append(this.getNome()).append(",");
-        sb.append(this.getQuantidade()).append(",");
-        sb.append(this.getIdFornecedor()).append(",");
-        sb.append("Medicacao").append(",");
-        sb.append(this.getLote()).append(",");
-        try {
-            sb.append(Auxiliar.SDF.format(this.getValidade())).append(",");
-        } catch (Exception e) {
-            Auxiliar.error("Medicacao.salvar: Erro ao formatar validade: " + e.getMessage());
-            sb.append("NULL").append(",");
-        }
-        sb.append(this.getUltimoResponsavel()).append(",");
-        try {
-            sb.append(Auxiliar.SDF.format(this.getDataUltimoResponsavel()));
-        } catch (Exception e) {
-            Auxiliar.error("Medicacao.salvar: Erro ao formatar data do último responsável: " + e.getMessage());
-            sb.append("NULL");
-        }
-        return sb.toString();
-    }
+    // O método salvar foi substituído por toCSV
+    // @Override
+    // public String salvar() { ... }
 
     // << Getters e Setters >>
 
@@ -108,6 +61,10 @@ public class Medicacao extends Produto {
     // << Métodos adicionais >>
 
     public boolean verificarValidade() {
+        if (validade == null) {
+            Auxiliar.error("Medicacao.verificarValidade: Validade não definida.");
+            return true;
+        }
         Date hoje = new Date();
         return validade.after(hoje);
     }
@@ -118,12 +75,12 @@ public class Medicacao extends Produto {
     }
 
     @Override
-    public Medicacao clone(int quantidade) {
-        return new Medicacao(this.getID(), this.getNome(), quantidade, this.getIdFornecedor(), this.getLote(), this.getValidade(), this.getUltimoResponsavel(), this.getDataUltimoResponsavel());
+    public Produto clone(int quantidade) {
+        return new Medicacao(this.getID(), this.getNome(), quantidade, this.getIdFornecedor(), this.getSetor(), this.getLote(), this.getValidade(), this.getUltimoResponsavel(), this.getDataUltimoResponsavel());
     }
 
     public Medicacao clone(int quantidade, int novoID){
-        return new Medicacao(novoID, this.getNome(), quantidade, this.getIdFornecedor(), this.getLote(), this.getValidade(), this.getUltimoResponsavel(), this.getDataUltimoResponsavel());
+        return new Medicacao(novoID, this.getNome(), quantidade, this.getIdFornecedor(), this.getSetor(), this.getLote(), this.getValidade(), this.getUltimoResponsavel(), this.getDataUltimoResponsavel());
     }
 
     public void atualizarDetalhes(String detalhes) {
@@ -131,11 +88,47 @@ public class Medicacao extends Produto {
         if (partes.length == 2) {
             this.lote = partes[0].trim();
             try {
-                this.validade = Auxiliar.SDF.parse(partes[1].trim());
+                this.validade = new SimpleDateFormat("yyyy-MM-dd").parse(partes[1].trim());
             } catch (ParseException ex) {
                 Auxiliar.error("Medicacao.atualizarDetalhes: Erro ao atualizar validade: " + ex.getMessage());
             }
         }
     }
 
+    @Override
+    public String toCSV() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String validadeStr = getValidade() != null ? sdf.format(getValidade()) : "NULL";
+        String dataUltimoResponsavelStr = getDataUltimoResponsavel() != null ? sdf.format(getDataUltimoResponsavel()) : "NULL";
+
+        return String.format("%d,%s,%d,%d,%s,Medicacao,%s,%s,%s,%s",
+                getID(), getNome(), getQuantidade(), getIdFornecedor(), getSetor(),
+                getLote(), validadeStr, getUltimoResponsavel(), dataUltimoResponsavelStr);
+    }
+
+    public static Medicacao fromCSV(String[] values) {
+        int id = Integer.parseInt(values[0]);
+        String nome = values[1];
+        int quantidade = Integer.parseInt(values[2]);
+        int idFornecedor = Integer.parseInt(values[3]);
+        String setor = values[4];
+        String lote = "NULL".equals(values[6]) ? null : values[6];
+        String ultimoResponsavel = "NULL".equals(values[8]) ? null : values[8];
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date validade = null;
+        Date dataUltimoResponsavel = null;
+        try {
+            if (!"NULL".equals(values[7])) validade = sdf.parse(values[7]);
+        } catch (ParseException e) {
+            Auxiliar.error("Medicacao.fromCSV: Erro ao carregar validade: " + e.getMessage());
+        }
+        try {
+            if (!"NULL".equals(values[9])) dataUltimoResponsavel = sdf.parse(values[9]);
+        } catch (ParseException e) {
+            Auxiliar.error("Medicacao.fromCSV: Erro ao carregar data do último responsável: " + e.getMessage());
+        }
+
+        return new Medicacao(id, nome, quantidade, idFornecedor, setor, lote, validade, ultimoResponsavel, dataUltimoResponsavel);
+    }
 }

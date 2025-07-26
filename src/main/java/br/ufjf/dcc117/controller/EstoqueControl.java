@@ -3,9 +3,9 @@ package br.ufjf.dcc117.controller;
 import java.util.List;
 
 import br.ufjf.dcc117.model.Auxiliar;
+import br.ufjf.dcc117.model.PersistenceService;
 import br.ufjf.dcc117.model.estoque.Medicacao;
 import br.ufjf.dcc117.model.estoque.Produto;
-import br.ufjf.dcc117.model.setor.Setor;
 import br.ufjf.dcc117.model.setor.SetorCadastro;
 
 public class EstoqueControl extends Control {
@@ -20,10 +20,10 @@ public class EstoqueControl extends Control {
             if (p == null)
                 continue;
             if (p instanceof Medicacao m) {
-                lista[i] = p.getID() + " - " + p.getNome() + " - Quantidade: " + p.getQuantidade() + " - Validade: "
+                lista[i] = "ID: " + p.getID() + " - " + p.getNome() + " - Quantidade: " + p.getQuantidade() + " - Validade: "
                         + m.getValidade();
             } else {
-                lista[i] = p.getID() + " - " + p.getNome() + " - Quantidade: " + p.getQuantidade();
+                lista[i] = "ID: " + p.getID() + " - " + p.getNome() + " - Quantidade: " + p.getQuantidade();
             }
         }
         return lista;
@@ -81,20 +81,16 @@ public class EstoqueControl extends Control {
     }
 
     public static String[] listarProdutosCadastrados() {
-        return Setor.carregar(Auxiliar.SETOR_CADASTRO).getProdutos().stream()
+        return PersistenceService.carregarProdutos(p -> p.getSetor().equalsIgnoreCase(Auxiliar.SETOR_CADASTRO)).stream()
                 .map(produto -> produto.getID() + " - " + produto.getNome())
                 .toArray(String[]::new);
     }
 
-    public static boolean produtoPrecisaDeDetalhes(String produto) {
-        List<Produto> produtos = setor.getProdutos();
-        for (Produto p : produtos) {
-            if (p.getNome().equalsIgnoreCase(produto)) {
-                if (p instanceof Medicacao m) {
-                    if (m.getLote() != null && !m.getLote().isEmpty() || m.getValidade() != null) {
-                        return true;
-                    }
-                }
+    public static boolean produtoPrecisaDeDetalhes(String produtoNome) {
+        List<Produto> produtosModelo = PersistenceService.carregarProdutos(p -> p.getSetor().equalsIgnoreCase(Auxiliar.SETOR_CADASTRO));
+        for (Produto p : produtosModelo) {
+            if (p.getNome().equalsIgnoreCase(produtoNome)) {
+                return p instanceof Medicacao;
             }
         }
         return false;

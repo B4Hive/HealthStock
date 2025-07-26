@@ -15,7 +15,7 @@ public class homeScreen {
         int choice = -1;
         while (choice != 0) {
             CLI.clear();
-            CLI.printMenu(Control.getSetor() + " Options",options);
+            CLI.printMenu(Control.getSetor().toUpperCase() + " Options",options);
             choice = in.nextInt(); in.nextLine();
             switch(choice){
                 case 1 -> estoqueScreen.show();

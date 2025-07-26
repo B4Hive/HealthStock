@@ -10,19 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.ufjf.dcc117.model.Auxiliar;
-import br.ufjf.dcc117.model.estoque.Estoque;
+import br.ufjf.dcc117.model.PersistenceService;
 import br.ufjf.dcc117.model.estoque.Fornecedor;
 import br.ufjf.dcc117.model.estoque.Medicacao;
 import br.ufjf.dcc117.model.estoque.Produto;
 
 public class SetorCadastro extends Setor{
 
-    public SetorCadastro(String nome, String senha, List<Pedido> pedidos, Estoque estoque) {
-        super(nome, senha, pedidos, estoque);
+    public SetorCadastro(String nome) {
+        super(nome);
     }
 
     public void cadastroFornecedor(String nome, String cnpj, String telefone, String endereco, String email) {
-        File file = new File(Auxiliar.path(Auxiliar.SETOR_CADASTRO, "fornecedores", "csv"));
+        File file = new File("src/main/resources/fornecedores.csv");
         Auxiliar.checkFile(file);
 
         List<Fornecedor> fornecedores = carregarFornecedores(file);
@@ -67,7 +67,7 @@ public class SetorCadastro extends Setor{
     }
 
     public List<Fornecedor> getFornecedores() {
-        File file = new File(Auxiliar.path(Auxiliar.SETOR_CADASTRO, "fornecedores", "csv"));
+        File file = new File("src/main/resources/fornecedores.csv");
         Auxiliar.checkFile(file);
         return carregarFornecedores(file);
     }
@@ -81,51 +81,24 @@ public class SetorCadastro extends Setor{
         return null; // Retorna null se não encontrar o fornecedor
     }
 
-    public void cadastroProduto(String nome, int fornecedorId, String tipo) {
-        File file = new File(Auxiliar.path(Auxiliar.SETOR_CADASTRO, "estoque", "csv"));
-        Auxiliar.checkFile(file);
-        List<Produto> produtos = this.getProdutos();
-        int id = produtos.size() + 1;
+    public void cadastroProduto(String nome, int fornecedorId, String tipoProduto) {
+        List<Produto> todosProdutos = PersistenceService.carregarProdutos(p -> true);
+        int novoId = todosProdutos.stream().mapToInt(Produto::getID).max().orElse(0) + 1;
+
         Produto novoProduto;
-        if (tipo.equalsIgnoreCase("Medicacao")) {
-            novoProduto = new Medicacao(id, nome, 0, fornecedorId, null, null, null, null);
+        if ("Medicacao".equalsIgnoreCase(tipoProduto)) {
+            novoProduto = new Medicacao(novoId, nome, 0, fornecedorId, this.getNome(), null, null, null, null);
         } else {
-            novoProduto = new Produto(id, nome, 0, fornecedorId);
+            novoProduto = new Produto(novoId, nome, 0, fornecedorId, this.getNome());
         }
-        produtos.add(novoProduto);
-        salvarProdutos(file, produtos);
-    }
-
-    private void salvarProdutos(File file, List<Produto> produtos) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("ID,Nome,Quantidade,FornecedorID,Lote,Validade,UltimoResponsavel,UltimaMovimentacao\n");
-            for (Produto produto : produtos) {
-                writer.write(produto.salvar());
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            Auxiliar.error("SetorCadastro.salvarProdutos: Erro ao salvar produtos: " + file.getAbsolutePath() + ". Mensagem de erro: " + e.getMessage());
-            System.exit(1);
-        }
-    }
-
-    @Override
-    public void entradaProduto(Produto produto) {
-        Auxiliar.error("SetorCadastro.entradaProduto: Entrada de produto no setor de cadastro");
+        PersistenceService.salvarProduto(novoProduto);
     }
 
     @Override
     public Produto retiradaProduto(int id, int quantidade) {
-        Produto produtoModelo = getEstoque().getProduto(id);
-        if (produtoModelo instanceof Medicacao medicacao) {
-            int novoID = getEstoque().getProdutos().size() + 1; // Novo ID para o clone
-            produtoModelo = medicacao.clone(0, novoID);
-            getEstoque().adicionarProduto(produtoModelo);
-            salvar();
-        }
+        Produto produtoModelo = getProduto(id);
         if (produtoModelo != null) {
-            Produto novoProduto = produtoModelo.clone(quantidade);
-            return novoProduto;
+            return produtoModelo.clone(quantidade);
         }
         return null;
     }

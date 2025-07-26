@@ -1,5 +1,6 @@
 @startuml HealthStock
 
+' Classes de Domínio (Estoque)
 class Fornecedor {
   - id : int
   - nome : String
@@ -7,116 +8,118 @@ class Fornecedor {
   - telefone : String
   - endereco : String
   - email : String
-
-  + {static} carregar (fornecedor : String) : Fornecedor
-  + salvar () : String
+  + {static} carregar(fornecedorCSV: String) : Fornecedor
+  + salvar() : String
 }
 
 class Produto {
-  - id : int
-  - nome : String
-  - quantidade : int
-  - idFornecedor : int
-
-  + {static} carregar (produto : String) : Produto
-  + salvar () : String
+  # id : int
+  # nome : String
+  # quantidade : int
+  # idFornecedor : int
+  # setor : String
+  + toCSV() : String
+  + {static} fromCSV(values: String[]) : Produto
+  + clone(novaQuantidade: int) : Produto
 }
 
 class Medicacao {
   - lote : String
   - validade : Date
   - ultimoResponsavel : String
-  - ultimaMovimentacao : Date
-  
-  + verificarValidade () : boolean
-  + movimentacao (responsavel : String)
-
-  + {static} carregar (medicacao : String) : Medicacao
-  + salvar () : String
+  - dataUltimoResponsavel : Date
+  + verificarValidade() : boolean
+  + atualizarResponsavel(responsavel: String) : void
+  + toCSV() : String
+  + {static} fromCSV(values: String[]) : Medicacao
 }
 
-class Estoque {
-  - produtos : List<Produto>
-
-  + adicionarProduto (produto : Produto)
-  + retirarProduto (id : int, qtd : int) : Produto
-  + listarProdutos () : Map<Integer, String>
-  + getProduto (id : int) : Produto
-
-  + {static} carregar (nomeArquivo : String) : Estoque
-  + salvar (setor : String) : void
-}
-
+' Classes de Domínio (Setor)
 class Pedido {
+  - id : int
   - setorSolicitante : String
   - setorResponsavel : String
   - dataPedido : Date
   - produto : String
   - quantidade : int
   - estado : String
-
-  + {static} carregar (pedido : String) : Pedido
-  + {static} carregarPedidos (nomeSetor : String) : List<Pedido>
-  + salvar () : String
+  - detalhes : String
+  + {static} carregar(linhaCsv: String) : Pedido
+  + salvar() : String
 }
 
 class Setor {
-  - nome : String
+  # nome : String
   - senha : String
-  - pedidos : List<Pedido>
-  - estoque : Estoque
-
-  + validarSenha (senha : String) : boolean
-
-  + gerarPedido (idProduto : int, qtd : int)
-  + adicionarPedido (pedido : Pedido)
-  + listarPedidos () : List<String>
-  + listarPedidosPorEstado (estado : String) : List<String>
-  + aprovarPedido (nPedido : int, resposta : boolean) : boolean 
-
-  + entradaProduto (produto : Produto)
-  + retiradaProduto (id : int, qtd : int) : Produto
-  + consumirProduto (id : int, qtd : int)
-
-  + {static} carregar (nomeArquivo : String) : Setor
-  + salvar () : void
+  + validarSenha(senha: String) : boolean
+  + {static} carregar(nomeSetor: String) : Setor
+  + criarPedido(pedido: Pedido) : void
+  + aprovarPedido(pedido: Pedido, aprovado: boolean) : void
+  + listarPedidos() : List<Pedido>
+  + entradaProduto(produto: Produto) : void
+  + retiradaProduto(id: int, quantidade: int) : Produto
+  + consumirProduto(id: int, quantidade: int) : void
+  + getProdutos() : List<Produto>
+  + getProduto(id: int) : Produto
 }
 
 class SetorEntrada {
-  + distribuirEntrada (produto : Produto)
+  + entradaProduto(produto: Produto) : void
 }
 
 class SetorCadastro {
-  - cadastroFornecedor (fornecedor : Fornecedor)
-  - cadastroProduto (nome : String, tipo : String)
-  + listarFornecedores () : List<Fornecedor>
-  + getFornecedor (id : int) : Fornecedor
+  + cadastroFornecedor(nome: String, ...): void
+  + getFornecedores() : List<Fornecedor>
+  + getFornecedor(id: int) : Fornecedor
+  + cadastroProduto(nome: String, ...): void
+  + retiradaProduto(id: int, quantidade: int) : Produto
 }
 
-Setor <|-- SetorEntrada : é um(a)
+' Classes de Serviço e Utilitários
+class PersistenceService {
+  - {static} PRODUTOS_CSV : String
+  - {static} PEDIDOS_FILE : String
+  + {static} carregarProdutos(filtro: Predicate) : List<Produto>
+  + {static} salvarProdutos(todosProdutos: List<Produto>) : void
+  + {static} salvarProduto(produto: Produto) : void
+  + {static} removerProduto(produto: Produto) : void
+  + {static} getNextPedidoId() : int
+  + {static} carregarPedidos(predicate: Predicate) : List<Pedido>
+  + {static} salvarPedido(pedido: Pedido) : void
+  + {static} salvarPedidos(pedidos: List<Pedido>) : void
+}
 
-Setor <|-- SetorCadastro : é um(a)
+class Auxiliar {
+  + {static} SETOR_MEDICACAO : String
+  + {static} SETOR_ENTRADA : String
+  + {static} SETOR_CADASTRO : String
+  + {static} SDF : SimpleDateFormat
+  + {static} path(...) : String
+  + {static} checkFile(file: File) : void
+  + {static} error(message: String) : void
+  + {static} encrypt(setor: String, senha: String) : String
+}
 
-Produto <|-- Medicacao : é um(a)
 
-Produto o-- "1" Fornecedor : possui
+' Relacionamentos
+Produto <|-- Medicacao
+Setor <|-- SetorEntrada
+Setor <|-- SetorCadastro
 
-Setor o-- "1" Estoque : possui
-
-Setor --> Pedido : gera
-
-Setor o-- "0..*" Pedido : possui
-
-Estoque o-- "0..*" Produto : possui
-
-SetorCadastro --> Fornecedor : cadastra
+Setor ..> PersistenceService : usa
+Pedido ..> PersistenceService : usa
+SetorCadastro ..> Fornecedor : gerencia
+Produto "1" -- "1" Fornecedor : é fornecido por
 
 note top of SetorCadastro
-  Setor de compras
+  Setor de compras, responsável
+  pelo cadastro de produtos e
+  fornecedores.
 end note
 
 note bottom of SetorEntrada
-  Almoxarifado
+  Almoxarifado, ponto central
+  de recebimento de produtos.
 end note
 
 @enduml

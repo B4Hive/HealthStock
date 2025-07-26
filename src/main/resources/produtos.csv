@@ -1,0 +1,5 @@
+id,nome,quantidade,idFornecedor,setor,tipo,lote,validade,ultimoResponsavel,dataUltimoResponsavel
+1,Primogem,0,2,compras,Produto,NULL,NULL,NULL,NULL
+2,Ritalina,0,1,compras,Medicacao,null,NULL,null,NULL
+2,Ritalina,50,1,farmacia,Medicacao,null,NULL,null,2025-07-26
+1,Primogem,25,2,almoxarifado,Produto,NULL,NULL,NULL,NULL

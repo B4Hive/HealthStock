@@ -14,6 +14,7 @@ public class Pedido {
 
     // << Atributos >>
 
+    private final int id;
     private final String setorSolicitante;
     private final String setorResponsavel;
     private final Date dataPedido;
@@ -22,19 +23,21 @@ public class Pedido {
     private String estado;
     private String detalhes;
 
-    // << Construtor >>
+    // << Construtores >>
 
-    public Pedido(String setorSolicitante, String setorResponsavel, String produto, int quantidade) {
+    public Pedido(int id, String setorSolicitante, String setorResponsavel, String produto, int quantidade) {
+        this.id = id;
         this.setorSolicitante = setorSolicitante;
         this.setorResponsavel = setorResponsavel;
         this.dataPedido = new Date();
         this.produto = produto;
         this.quantidade = quantidade;
         this.estado = "Pendente";
-        this.detalhes = null;
+        this.detalhes = "";
     }
 
-    public Pedido(String setorSolicitante, String setorResponsavel, Date dataPedido, String produto, int quantidade, String estado, String detalhes) {
+    public Pedido(int id, String setorSolicitante, String setorResponsavel, Date dataPedido, String produto, int quantidade, String estado, String detalhes) {
+        this.id = id;
         this.setorSolicitante = setorSolicitante;
         this.setorResponsavel = setorResponsavel;
         this.dataPedido = dataPedido;
@@ -44,35 +47,39 @@ public class Pedido {
         this.detalhes = detalhes;
     }
 
-    public static Pedido carregar(String pedido) {
-        String[] partes = pedido.split(",");
-        if (partes.length != 7) {
+    // << Persistência >>
+
+    public static Pedido carregar(String linhaCsv) {
+        String[] partes = linhaCsv.split(",");
+        if (partes.length < 8) { // Deve ter pelo menos 8 colunas
             return null;
         }
         try {
-            String setorSolicitante = partes[0].trim();
-            String setorResponsavel = partes[1].trim();
-            Date dataPedido = Auxiliar.SDF.parse(partes[2].trim());
-            String produto = partes[3].trim();
-            int quantidade = Integer.parseInt(partes[4].trim());
-            String estado = partes[5].trim();
-            String detalhes = partes[6].trim();
-            if (detalhes.isEmpty() || detalhes.equalsIgnoreCase("null")) {
-                detalhes = null; // Se não houver detalhes, define como null
+            int id = Integer.parseInt(partes[0].trim());
+            String setorSolicitante = partes[1].trim();
+            String setorResponsavel = partes[2].trim();
+            Date dataPedido = Auxiliar.SDF.parse(partes[3].trim());
+            String produto = partes[4].trim();
+            int quantidade = Integer.parseInt(partes[5].trim());
+            String estado = partes[6].trim();
+            String detalhes = partes[7].trim();
+            if (detalhes.equalsIgnoreCase("NULL")) {
+                detalhes = ""; // Se for "NULL", define como vazio
             }
 
-            Pedido pedidoObj = new Pedido(setorSolicitante, setorResponsavel, dataPedido, produto, quantidade, estado, detalhes);
-            return pedidoObj;
+            return new Pedido(id, setorSolicitante, setorResponsavel, dataPedido, produto, quantidade, estado, detalhes);
         } catch (NumberFormatException | ParseException e) {
+            Auxiliar.error("Pedido.carregar: Falha ao parsear linha do CSV: " + linhaCsv + ". Erro: " + e.getMessage());
             return null;
         }
     }
 
     public static List<Pedido> carregarPedidos(String nomeSetor) {
         List<Pedido> pedidos = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(Auxiliar.path(nomeSetor, "pedidos","csv")))) {
+        String path = Auxiliar.path(nomeSetor, "pedidos", "csv");
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             String linha;
-            br.readLine();
+            br.readLine(); // Pula o cabeçalho
             while ((linha = br.readLine()) != null) {
                 Pedido pedido = Pedido.carregar(linha);
                 if (pedido != null) {
@@ -80,25 +87,29 @@ public class Pedido {
                 }
             }
         } catch (IOException e) {
-            Auxiliar.error("Pedido.carregarPedidos: Erro ao carregar pedidos do setor " + nomeSetor + ". Mensagem de erro: " + e.getMessage());
-            return pedidos; // Retorna lista vazia em caso de erro
+            // Não loga erro se o arquivo não existir, pode ser a primeira execução
         }
         return pedidos;
     }
 
     public String salvar() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.getSetorSolicitante()).append(",");
-        sb.append(this.getSetorResponsavel()).append(",");
-        sb.append(Auxiliar.SDF.format(this.getDataPedido())).append(",");
-        sb.append(this.getProduto()).append(",");
-        sb.append(this.getQuantidade()).append(",");
-        sb.append(this.getEstado()).append(",")
-        .append(this.getDetalhes() != null ? this.getDetalhes() : "NULL");
-        return sb.toString();
+        return String.join(",",
+                String.valueOf(this.id),
+                this.setorSolicitante,
+                this.setorResponsavel,
+                Auxiliar.SDF.format(this.dataPedido),
+                this.produto,
+                String.valueOf(this.quantidade),
+                this.estado,
+                (this.detalhes != null && !this.detalhes.isEmpty()) ? this.detalhes : "NULL"
+        );
     }
 
     // << Getters e Setters >>
+
+    public int getId() {
+        return id;
+    }
 
     public String getSetorSolicitante() {
         return this.setorSolicitante;
@@ -140,25 +151,23 @@ public class Pedido {
 
     @Override
     public String toString() {
-        return "Solicitante = " + this.setorSolicitante +
-                ", Responsavel = " + this.setorResponsavel +
-                ", Data do Pedido = " + this.dataPedido +
-                ", Produto = " + this.produto +
-                ", Quantidade = " + this.quantidade +
-                ", Estado = " + this.estado +
-                ';';
+        return "ID: " + this.id +
+                ", Solicitante: " + this.setorSolicitante +
+                ", Responsavel: " + this.setorResponsavel +
+                ", Data: " + Auxiliar.SDF.format(this.dataPedido) +
+                ", Produto: " + this.produto +
+                ", Qtd: " + this.quantidade +
+                ", Estado: " + this.estado;
     }
 
-    public boolean compare(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof Pedido)) return false;
-        Pedido pedido = (Pedido) obj;
-        return this.setorSolicitante.equalsIgnoreCase(pedido.setorSolicitante) &&
+    public boolean compare(Pedido pedido) {
+        if (this == pedido) return true;
+        if (pedido == null) return false;
+        return this.id == pedido.id &&
+               this.setorSolicitante.equalsIgnoreCase(pedido.setorSolicitante) &&
                this.setorResponsavel.equalsIgnoreCase(pedido.setorResponsavel) &&
-               this.dataPedido.equals(pedido.dataPedido) &&
                this.produto.equalsIgnoreCase(pedido.produto) &&
-               this.quantidade == pedido.quantidade &&
-               this.estado.equalsIgnoreCase(pedido.estado);
+               this.quantidade == pedido.quantidade;
     }
 
 }
