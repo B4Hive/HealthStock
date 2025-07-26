@@ -17,14 +17,19 @@ public class estoqueScreen {
             CLI.clear();
             String[] produtos = EstoqueControl.getListaProdutos();
             System.out.println("Lista de Produtos no Estoque:");
-            for (String p : produtos) {
-                System.out.println(p);
-            }
-            System.out.println("0 - Voltar ao menu anterior");
-            System.out.print("\nEscolha um produto:");
+            CLI.printMenu("Produtos", produtos);
+            System.out.print("\nEscolha um produto (pelo número) ou 0 para voltar:");
             choice = in.nextInt(); in.nextLine();
-            if (choice != 0) {
-                show(choice);
+            if (choice > 0 && choice <= produtos.length) {
+                try {
+                    String idString = produtos[choice - 1].split(" ")[1];
+                    int produtoId = Integer.parseInt(idString);
+                    show(produtoId);
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                    CLI.message("Seleção inválida. Tente novamente.");
+                }
+            } else if (choice != 0) {
+                CLI.message("Opção inválida.");
             }
         }
     }

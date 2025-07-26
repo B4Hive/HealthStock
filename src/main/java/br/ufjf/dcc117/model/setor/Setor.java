@@ -1,166 +1,133 @@
 package br.ufjf.dcc117.model.setor;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import br.ufjf.dcc117.model.Auxiliar;
-import br.ufjf.dcc117.model.estoque.Estoque;
+import br.ufjf.dcc117.model.PersistenceService;
 import br.ufjf.dcc117.model.estoque.Produto;
 
 public class Setor {
-
-    // << Atributos >>
-
-    private String nome;
+    private final String nome;
     private String senha;
-    private final List<Pedido> pedidos;
-    private final Estoque estoque;
 
-    // << Construtor >>
-
-    public Setor(String nome, String senha, List<Pedido> pedidos, Estoque estoque) {
+    protected Setor(String nome) {
         this.nome = nome;
-        this.senha = senha;
-        this.pedidos = pedidos;
-        this.estoque = estoque;
     }
-
-    // << Getters e Setters >>
 
     public String getNome() {
-        return this.nome;
+        return nome;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public static Setor carregar(String nomeSetor) {
+        String path = "src/main/resources/senhas.csv";
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            String line;
+            reader.readLine(); // Pula o cabeçalho
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+                if (values[0].equalsIgnoreCase(nomeSetor)) {
+                    String senha = values[1];
+                    Setor setor;
+                    if (nomeSetor.equalsIgnoreCase(Auxiliar.SETOR_CADASTRO)) {
+                        setor = new SetorCadastro(nomeSetor);
+                    } else if (nomeSetor.equalsIgnoreCase(Auxiliar.SETOR_ENTRADA)) {
+                        setor = new SetorEntrada(nomeSetor);
+                    } else {
+                        setor = new Setor(nomeSetor);
+                    }
+                    setor.setSenha(senha);
+                    return setor;
+                }
+            }
+        } catch (IOException e) {
+            Auxiliar.error("Setor.carregar: Arquivo de senhas não encontrado.");
+            return null;
+        }
+        // Se o loop terminar e não encontrar o setor
+        Auxiliar.error("Setor.carregar: Setor não encontrado no arquivo de senhas: " + nomeSetor);
+        return null;
     }
 
-    public void setSenha(String senha) {
+    // << Métodos de Pedidos >>
+    public void criarPedido(Pedido pedido) {
+        PersistenceService.salvarPedido(pedido);
+    }
+
+    public void aprovarPedido(Pedido pedido, boolean aprovado) {
+        List<Pedido> todosPedidos = PersistenceService.carregarPedidos(p -> true);
+        for (Pedido p : todosPedidos) {
+            if (p.getId() == pedido.getId()) {
+                p.setEstado(aprovado ? "Aprovado" : "Rejeitado");
+                break;
+            }
+        }
+        PersistenceService.salvarPedidos(todosPedidos);
+    }
+
+    public List<Pedido> listarPedidos() {
+        return PersistenceService.carregarPedidos(p -> p.getSetorSolicitante().equalsIgnoreCase(this.nome) || p.getSetorResponsavel().equalsIgnoreCase(this.nome));
+    }
+
+    public List<String> listarPedidosPorEstado(String estado) {
+        return listarPedidos().stream()
+                .filter(pedido -> estado.equalsIgnoreCase(pedido.getEstado()))
+                .map(Pedido::toString)
+                .collect(Collectors.toList());
+    }
+
+    public boolean validarSenha(String senha) {
+        return this.senha.equals(Auxiliar.encrypt(this.nome, senha));
+    }
+
+    private void setSenha(String senha) {
         this.senha = senha;
     }
 
-    protected Estoque getEstoque() {
-        return this.estoque;
-    }
-    
-    public List<Produto> getProdutos() {
-        return new ArrayList<>(this.estoque.getProdutos());
-    }
-    
-    // << Métodos Setor >>
-    
-    public boolean validarSenha(String senha) {
-        return this.senha.equals(senha);
+    // << Métodos de Estoque >>
+    public void entradaProduto(Produto produto) {
+        produto.setSetor(this.nome);
+        Produto existente = getProduto(produto.getID());
+        if (existente != null) {
+            existente.setQuantidade(existente.getQuantidade() + produto.getQuantidade());
+            PersistenceService.salvarProduto(existente);
+        } else {
+            PersistenceService.salvarProduto(produto);
+        }
     }
 
-    public static Setor carregar(String nome) {
-        File senhaFile = new File(Auxiliar.path(nome, nome, "pw"));
-        if (!senhaFile.exists()) {
-            Auxiliar.error("Setor.carregar: Arquivo de senha não encontrado para o setor: " + nome);
-            return null;
-        }
-        String senha;
-        try (BufferedReader br = new BufferedReader(new FileReader(senhaFile))) {
-            senha = Auxiliar.decrypt(br.readLine());
-        } catch (IOException e) {
-            Auxiliar.error("Setor.carregar: Erro ao ler senha do setor " + nome + ". Mensagem de erro: " + e.getMessage());
-            return null; // Retorna null em caso de erro
-        }
-        
-        Estoque estoque = Estoque.carregar(nome);
-        List<Pedido> pedidos = Pedido.carregarPedidos(nome);
-
-        if (estoque != null && pedidos != null) {
-            if (nome.equalsIgnoreCase(Auxiliar.SETOR_CADASTRO)) {
-                return new SetorCadastro(nome, senha, pedidos, estoque);
-            } else if (nome.equalsIgnoreCase(Auxiliar.SETOR_ENTRADA)) {
-                return new SetorEntrada(nome, senha, pedidos, estoque);
-            }
-            return new Setor(nome, senha, pedidos, estoque);
+    public Produto retiradaProduto(int id, int quantidade) {
+        Produto produto = getProduto(id);
+        if (produto != null && produto.getQuantidade() >= quantidade) {
+            produto.setQuantidade(produto.getQuantidade() - quantidade);
+            PersistenceService.salvarProduto(produto);
+            Produto produtoRetirado = produto.clone(quantidade);
+            return produtoRetirado;
         }
         return null;
     }
 
-    public void salvar() {
-
-        //Salvar Senha
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(Auxiliar.path(nome, nome, "pw")))) {
-            bw.write(Auxiliar.encrypt(this.senha));
-        } catch (IOException e) {
-            Auxiliar.error("Setor.salvar: Erro ao salvar senha do setor " + nome + ". Mensagem de erro: " + e.getMessage());
-            System.exit(1); // Encerra o programa em caso de erro crítico
-        }
-
-        salvarPedidos();
-
-        //Salvar Estoque
-        estoque.salvar(nome);
-    }
-
-    private void salvarPedidos() {
-        //Salvar Pedidos
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(Auxiliar.path(nome, "pedidos", "csv")))) {
-            bw.write("Setor Solicitante,Setor Responsavel,Data,Produto,Quantidade,Estado,Detalhes");
-            bw.newLine();
-            for (Pedido pedido : pedidos) {
-                bw.write(pedido.salvar());
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            Auxiliar.error("Setor.salvarPedidos: Erro ao salvar pedidos do setor " + nome + ". Mensagem de erro: " + e.getMessage());
-            System.exit(1); // Encerra o programa em caso de erro crítico
-        }
-    }
-
-    // << Métodos de Pedido >>
-    
-    public void adicionarPedido(Pedido pedido) {
-        pedidos.add(pedido);
-        salvarPedidos();
-    }
-
-    public List<Pedido> listarPedidos() {
-        return pedidos;
-    }
-    
-    public List<String> listarPedidosPorEstado(String estado) {
-        return pedidos.stream().filter(pedido -> estado.equalsIgnoreCase(pedido.getEstado())).map(Pedido::toString).toList();
-    }
-    
-    public void aprovarPedido(Pedido pedido, boolean resposta) {
-        for (Pedido p : this.pedidos) {
-            if (p.compare(pedido)) {
-                if (p.getEstado().equalsIgnoreCase("Pendente")) {
-                    p.setEstado(resposta ? "Aprovado" : "Rejeitado");
-                    salvarPedidos();
-                    return;
-                }
+    public void consumirProduto(int id, int quantidade) {
+        Produto produto = getProduto(id);
+        if (produto != null && produto.getQuantidade() >= quantidade) {
+            produto.setQuantidade(produto.getQuantidade() - quantidade);
+            if (produto.getQuantidade() == 0) {
+                PersistenceService.removerProduto(produto);
+            } else {
+                PersistenceService.salvarProduto(produto);
             }
         }
     }
 
-    // << Métodos de Estoque >>
-
-    public void entradaProduto(Produto produto) {
-        estoque.adicionarProduto(produto);
-        estoque.salvar(nome);
+    public List<Produto> getProdutos() {
+        return PersistenceService.carregarProdutos(p -> p.getSetor().equalsIgnoreCase(this.nome));
     }
 
-    public Produto retiradaProduto(int id, int qtd) {
-        Produto produto = estoque.retirarProduto(id, qtd);
-        estoque.salvar(nome);
-        return produto;
+    public Produto getProduto(int id) {
+        return PersistenceService.carregarProdutos(p -> p.getSetor().equalsIgnoreCase(this.nome) && p.getID() == id)
+                .stream().findFirst().orElse(null);
     }
-
-    public void consumirProduto(int id, int qtd) {
-        estoque.retirarProduto(id, qtd);
-        estoque.salvar(nome);
-    }
-
 }

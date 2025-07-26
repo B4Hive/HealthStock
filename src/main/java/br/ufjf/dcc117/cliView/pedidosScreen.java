@@ -22,7 +22,14 @@ public class pedidosScreen {
                 if (choice == -1) {
                     pedidosScreen.gerarPedido();
                 } else {
-                    pedidosScreen.show(choice - 1);
+                    if (choice > 0 && choice <= pedidos.length) {
+                        // Extrai o ID da string do menu ("ID: 1 - ...")
+                        String idString = pedidos[choice - 1].split(" ")[1];
+                        int pedidoId = Integer.parseInt(idString);
+                        pedidosScreen.show(pedidoId);
+                    } else {
+                        CLI.message("Seleção inválida.");
+                    }
                 }
             }
         }
@@ -38,51 +45,51 @@ public class pedidosScreen {
         int option = -1;
         while (option != 0) {
             CLI.clear();
-            System.out.println("Detalhes do Pedido " + (pedidoId + 1) + ":");
-            System.out.println("Setor de Solicitante: " + pedido[0]);
-            System.out.println("Setor de Responsavel: " + pedido[1]);
-            System.out.println("Data do Pedido: " + pedido[2]);
-            System.out.println("Produto: " + pedido[3]);
-            System.out.println("Quantidade: " + pedido[4]);
-            System.out.println("Status: " + pedido[5]);
+            System.out.println("Detalhes do Pedido " + pedido[0] + ":");
+            System.out.println("ID do Pedido: " + pedido[0]);
+            System.out.println("Setor Solicitante: " + pedido[1]);
+            System.out.println("Setor Responsavel: " + pedido[2]);
+            System.out.println("Data do Pedido: " + pedido[3]);
+            System.out.println("Produto: " + pedido[4]);
+            System.out.println("Quantidade: " + pedido[5]);
+            System.out.println("Status: " + pedido[6]);
+            System.out.println("Detalhes: " + pedido[7]);
             CLI.printMenu("Opções", new String[] { "Aprovar Pedido", "Rejeitar Pedido" });
             option = in.nextInt(); in.nextLine();
             switch (option) {
                 case 1 -> {
-                    if (!pedido[5].equalsIgnoreCase("Pendente")) {
+                    if (!pedido[6].equalsIgnoreCase("Pendente")) {
                         CLI.message("Pedido já foi respondido.");
                         return;
                     }
-                    if (!Control.getSetor().equalsIgnoreCase(pedido[1])) {
+                    if (!Control.getSetor().equalsIgnoreCase(pedido[2])) {
                         CLI.message("Você não tem permissão para aprovar este pedido.");
                         return;
                     }
-                    if (!EstoqueControl.verificarProduto(pedido[3])) {
+                    if (!EstoqueControl.verificarProduto(pedido[4])) {
                         if (Control.setorCadastro()) {
-                            estoqueScreen.cadastroProduto(pedido[3]);
-                            if (!EstoqueControl.verificarProduto(pedido[3])) {
-                                CLI.message("Erro ao cadastrar produto. Verifique os detalhes e tente novamente.");
-                                return;
-                            }
+                            estoqueScreen.cadastroProduto(pedido[4]);
+                            
                         } else {
                             CLI.message("Produto não encontrado e setor não tem permissão para cadastrar.");
                             return;
                         }
                     }
-                    if (EstoqueControl.produtoPrecisaDeDetalhes(pedido[3])){
+                    // Verifica se o produto precisa de detalhes E se os detalhes ainda não foram preenchidos
+                    if (EstoqueControl.produtoPrecisaDeDetalhes(pedido[4]) && (pedido[7] == null || pedido[7].isEmpty() || pedido[7].equalsIgnoreCase("NULL"))){
                         System.out.println("Digite o Lote do produto:");
                         String lote = in.nextLine();
                         System.out.println("Digite a Validade do produto (formato: YYYY-MM-DD):");
                         String validade = in.nextLine();
-                        pedido[6] = lote + " | " + validade;
+                        pedido[7] = lote + " | " + validade;
                     }
                     String responsavel = null;
-                    if(!pedido[4].equals("0")){ // pedido[4] é a quantidade
+                    if(!pedido[5].equals("0")){ // pedido[5] é a quantidade
                         System.out.println();
                         System.out.print("Responsável: ");
                         responsavel = in.nextLine();
                     }
-                    if (PedidosControl.respostaPedido(pedidoId, true, responsavel, pedido[6])) {
+                    if (PedidosControl.respostaPedido(pedidoId, true, responsavel, pedido[7])) {
                         CLI.message("Pedido aprovado com sucesso.");
                         // TODO: em caso de cadastro, verificar se o cadastro foi concluído com sucesso antes de aprovar
                     } else {
@@ -91,7 +98,7 @@ public class pedidosScreen {
                     return;
                 }
                 case 2 -> {
-                    if (!pedido[5].equalsIgnoreCase("Pendente")) {
+                    if (!pedido[6].equalsIgnoreCase("Pendente")) {
                         CLI.message("Pedido já foi respondido.");
                         return;
                     }

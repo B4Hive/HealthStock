@@ -2,6 +2,8 @@ package br.ufjf.dcc117.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -50,12 +52,31 @@ public class Auxiliar {
         System.err.println(new Date() + ": " + message);
     }
 
-    public static String encrypt(String senha) {
-        return senha;
+    public static String encrypt(String setor, String senha) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(senha.getBytes());
+            return bytesToHex(md.digest());
+        } catch (NoSuchAlgorithmException e) {
+            error("Auxiliar.encrypt: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static void senhas() {
+        // Método para manipulação de senhas, a ser implementado conforme necessidade
     }
 
     public static String decrypt(String senha) {
+        // A descriptografia de um hash MD5 não é possível, este método é conceitual.
         return senha;
     }
 
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
 }

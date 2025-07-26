@@ -1,0 +1,5 @@
+id,setorSolicitante,setorResponsavel,dataPedido,produto,quantidade,estado,detalhes
+1,almoxarifado,compras,2025-07-26,Primogem,0,Aprovado,NULL
+2,farmacia,compras,2025-07-26,Ritalina,0,Aprovado,NULL
+3,farmacia,compras,2025-07-26,Ritalina,50,Aprovado,NULL
+4,almoxarifado,compras,2025-07-26,Primogem,50,Aprovado,NULL

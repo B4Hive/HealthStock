@@ -8,41 +8,23 @@ public class Produto {
     private String nome;
     private int quantidade;
     private int idFornecedor;
+    private String setor; // Novo campo
 
     // << Construtor >>
 
-    public Produto(int id, String nome, int quantidade, int idFornecedor) {
+    public Produto(int id, String nome, int quantidade, int idFornecedor, String setor) {
         this.id = id;
         this.nome = nome;
         this.quantidade = quantidade;
         this.idFornecedor = idFornecedor;
+        this.setor = setor; // Novo campo
     }
 
-    public static Produto carregar(String produto) {
-        String[] partes = produto.split(",");
-        if (partes.length != 9) return null;
-        if (partes[4].trim().equalsIgnoreCase("Medicacao")) return Medicacao.carregar(produto);
+    // O método carregar foi movido para PersistenceService
+    // public static Produto carregar(String produto) { ... }
 
-        int id = Integer.parseInt(partes[0].trim());
-        String nome = partes[1].trim();
-        int quantidade = Integer.parseInt(partes[2].trim());
-        int idFornecedor = Integer.parseInt(partes[3].trim());
-        return new Produto(id, nome, quantidade, idFornecedor);
-    }
-
-    public String salvar() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.getID()).append(",");
-        sb.append(this.getNome()).append(",");
-        sb.append(this.getQuantidade()).append(",");
-        sb.append(this.getIdFornecedor()).append(",");
-        sb.append("Produto").append(",");
-        sb.append("NULL").append(",");
-        sb.append("NULL").append(",");
-        sb.append("NULL").append(",");
-        sb.append("NULL");
-        return sb.toString();
-    }
+    // O método salvar foi substituído por toCSV
+    // public String salvar() { ... }
 
     // << Getters e Setters >>
 
@@ -74,8 +56,29 @@ public class Produto {
         this.idFornecedor = idFornecedor;
     }
 
-    public Produto clone(int quantidade) {
-        return new Produto(this.id, this.nome, quantidade, this.idFornecedor);
+    public String getSetor() {
+        return setor;
     }
 
+    public void setSetor(String setor) {
+        this.setor = setor;
+    }
+
+    public String toCSV() {
+        return String.format("%d,%s,%d,%d,%s,Produto,NULL,NULL,NULL,NULL",
+                this.id, this.nome, this.quantidade, this.idFornecedor, this.setor);
+    }
+
+    public static Produto fromCSV(String[] values) {
+        int id = Integer.parseInt(values[0]);
+        String nome = values[1];
+        int quantidade = Integer.parseInt(values[2]);
+        int idFornecedor = Integer.parseInt(values[3]);
+        String setor = values[4];
+        return new Produto(id, nome, quantidade, idFornecedor, setor);
+    }
+
+    public Produto clone(int novaQuantidade) {
+        return new Produto(this.id, this.nome, novaQuantidade, this.idFornecedor, this.setor);
+    }
 }
