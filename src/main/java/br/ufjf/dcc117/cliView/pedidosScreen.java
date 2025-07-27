@@ -23,7 +23,6 @@ public class pedidosScreen {
                     pedidosScreen.gerarPedido();
                 } else {
                     if (choice > 0 && choice <= pedidos.length) {
-                        // Extrai o ID da string do menu ("ID: 1 - ...")
                         String idString = pedidos[choice - 1].split(" ")[1];
                         int pedidoId = Integer.parseInt(idString);
                         pedidosScreen.show(pedidoId);

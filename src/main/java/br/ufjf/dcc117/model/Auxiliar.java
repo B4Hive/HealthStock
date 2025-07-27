@@ -63,15 +63,6 @@ public class Auxiliar {
         }
     }
 
-    public static void senhas() {
-        // Método para manipulação de senhas, a ser implementado conforme necessidade
-    }
-
-    public static String decrypt(String senha) {
-        // A descriptografia de um hash MD5 não é possível, este método é conceitual.
-        return senha;
-    }
-
     private static String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {

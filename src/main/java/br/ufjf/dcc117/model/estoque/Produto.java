@@ -8,7 +8,7 @@ public class Produto {
     private String nome;
     private int quantidade;
     private int idFornecedor;
-    private String setor; // Novo campo
+    private String setor;
 
     // << Construtor >>
 
@@ -17,14 +17,8 @@ public class Produto {
         this.nome = nome;
         this.quantidade = quantidade;
         this.idFornecedor = idFornecedor;
-        this.setor = setor; // Novo campo
+        this.setor = setor;
     }
-
-    // O método carregar foi movido para PersistenceService
-    // public static Produto carregar(String produto) { ... }
-
-    // O método salvar foi substituído por toCSV
-    // public String salvar() { ... }
 
     // << Getters e Setters >>
 

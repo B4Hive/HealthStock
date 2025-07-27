@@ -59,7 +59,6 @@ public class PedidosControl extends Control {
             }
         }
         
-        // Atualiza o estado do pedido
         setor.aprovarPedido(pedido, aprovado);
         return true;
     }
@@ -71,7 +70,7 @@ public class PedidosControl extends Control {
                 return p.getID();
             }
         }
-        return -1; // Produto não encontrado
+        return -1;
     }
 
     private static boolean moverProduto(int produtoId, int quantidade, String setorDestino, String responsavel, String detalhes) {
@@ -126,7 +125,6 @@ public class PedidosControl extends Control {
                 int pedidoId = PersistenceService.getNextPedidoId();
                 Pedido pedido = new Pedido(pedidoId, setorSolicitante, setorResponsavel, nomeProduto, quantidade);
                 
-                // Salva o pedido uma única vez
                 PersistenceService.salvarPedido(pedido);
                 return true;
             }
@@ -152,7 +150,6 @@ public class PedidosControl extends Control {
         int pedidoId = PersistenceService.getNextPedidoId();
         Pedido pedido = new Pedido(pedidoId, setorSolicitante, Auxiliar.SETOR_CADASTRO, nomeProduto, 0);
         
-        // Salva o pedido uma única vez
         PersistenceService.salvarPedido(pedido);
         return true;
     }

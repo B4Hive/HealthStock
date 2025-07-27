@@ -29,16 +29,10 @@ public class CLI {
     public static void printMenu(String title, String[] options) {
         System.out.println(title + ":");
         for (int i = 0; i < options.length; i++) {
-            if (options[i] == null) continue; // Skip null options
+            if (options[i] == null) continue;
             System.out.println((i + 1) + ". " + options[i]);
         }
         System.out.println("0. Voltar");
-    }
-
-    public static void NYI() {
-        clear();
-        System.out.println("Esta funcionalidade ainda não foi implementada.");
-        pause();
     }
 
     public static void NYI(String message) {

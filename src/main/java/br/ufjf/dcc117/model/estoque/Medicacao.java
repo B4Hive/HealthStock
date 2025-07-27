@@ -25,13 +25,6 @@ public class Medicacao extends Produto {
         this.dataUltimoResponsavel = dataUltimoResponsavel;
     }
 
-    // O método carregar foi movido para PersistenceService
-    // public static Medicacao carregar(String produto) { ... }
-    
-    // O método salvar foi substituído por toCSV
-    // @Override
-    // public String salvar() { ... }
-
     // << Getters e Setters >>
 
     public String getLote() {
@@ -77,10 +70,6 @@ public class Medicacao extends Produto {
     @Override
     public Produto clone(int quantidade) {
         return new Medicacao(this.getID(), this.getNome(), quantidade, this.getIdFornecedor(), this.getSetor(), this.getLote(), this.getValidade(), this.getUltimoResponsavel(), this.getDataUltimoResponsavel());
-    }
-
-    public Medicacao clone(int quantidade, int novoID){
-        return new Medicacao(novoID, this.getNome(), quantidade, this.getIdFornecedor(), this.getSetor(), this.getLote(), this.getValidade(), this.getUltimoResponsavel(), this.getDataUltimoResponsavel());
     }
 
     public void atualizarDetalhes(String detalhes) {

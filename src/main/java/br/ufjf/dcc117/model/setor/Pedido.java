@@ -1,12 +1,7 @@
 package br.ufjf.dcc117.model.setor;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import br.ufjf.dcc117.model.Auxiliar;
 
@@ -72,24 +67,6 @@ public class Pedido {
             Auxiliar.error("Pedido.carregar: Falha ao parsear linha do CSV: " + linhaCsv + ". Erro: " + e.getMessage());
             return null;
         }
-    }
-
-    public static List<Pedido> carregarPedidos(String nomeSetor) {
-        List<Pedido> pedidos = new ArrayList<>();
-        String path = Auxiliar.path(nomeSetor, "pedidos", "csv");
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            String linha;
-            br.readLine(); // Pula o cabeçalho
-            while ((linha = br.readLine()) != null) {
-                Pedido pedido = Pedido.carregar(linha);
-                if (pedido != null) {
-                    pedidos.add(pedido);
-                }
-            }
-        } catch (IOException e) {
-            // Não loga erro se o arquivo não existir, pode ser a primeira execução
-        }
-        return pedidos;
     }
 
     public String salvar() {

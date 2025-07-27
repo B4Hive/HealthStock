@@ -18,7 +18,6 @@ public class Control {
     }
 
     public static void logout() {
-        // setor.salvar(); // A persistência agora é imediata, não precisa mais salvar no logout.
         setor = null;
     }
 
