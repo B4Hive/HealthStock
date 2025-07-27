@@ -18,9 +18,6 @@ public class estoqueScreen {
             String[] produtos = EstoqueControl.getListaProdutos();
             CLI.printMenu("Produtos", produtos);
             System.out.print("\nEscolha um produto (pelo número) ou 0 para voltar:");
-            System.out.println("Lista de Produtos no Estoque:");
-            CLI.printMenu("Produtos", produtos);
-            System.out.print("\nEscolha um produto (pelo número) ou 0 para voltar:");
             choice = in.nextInt(); in.nextLine();
             if (choice > 0 && choice <= produtos.length) {
                 try {
