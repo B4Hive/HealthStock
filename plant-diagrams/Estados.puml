@@ -1,0 +1,64 @@
+@startuml PedidoStates
+
+[*] --> Pendente : gerarPedido()
+state Pendente {
+  [*] --> AguardandoAvaliacao
+  note right of AguardandoAvaliacao
+    O pedido foi criado e aguarda
+    a ação do setor responsável.
+  end note
+}
+
+Pendente --> DecisaoAprovacao : aprovarPedido(aprovado)
+
+state DecisaoAprovacao <<choice>>
+DecisaoAprovacao --> Rejeitado : [aprovado = false]
+DecisaoAprovacao --> DecisaoTipoPedido : [aprovado = true]
+
+state DecisaoTipoPedido <<choice>>
+note left of DecisaoTipoPedido
+  Verifica se é um pedido de cadastro
+  (sem quantidade, para o setor de compras)
+  ou de movimentação de estoque.
+end note
+DecisaoTipoPedido --> CadastrandoProduto : [é pedido de cadastro]
+DecisaoTipoPedido --> MovimentandoEstoque : [é pedido de movimentação]
+
+state CadastrandoProduto {
+  note right
+    O setor de Compras realiza
+    o cadastro do novo produto
+    no sistema.
+  end note
+}
+CadastrandoProduto --> Aprovado
+
+state MovimentandoEstoque {
+  note right
+    O produto é retirado do estoque
+    do setor de origem (baixa) e
+    adicionado ao estoque do setor
+    de destino (entrada).
+    Se for medicação, lote e validade
+    são registrados.
+  end note
+}
+MovimentandoEstoque --> Aprovado
+
+state Aprovado
+note left of Aprovado
+  O pedido foi concluído com sucesso.
+  O estoque foi atualizado ou o
+  produto foi cadastrado.
+end note
+
+state Rejeitado
+note right of Rejeitado
+  O pedido foi negado pelo
+  setor responsável. Nenhuma
+  alteração no estoque é feita.
+end note
+
+Aprovado --> [*]
+Rejeitado --> [*]
+@enduml

@@ -1,0 +1,51 @@
+@startuml CadastroProduto
+actor Usuário
+participant ":estoqueScreen" as Screen
+participant ":EstoqueControl" as Control
+participant ":SetorCadastro" as Setor
+participant ":PersistenceService" as Persistence
+participant "novoProduto:Produto" as Produto
+
+autonumber
+
+Usuário -> Screen: Inicia cadastro de produto
+activate Screen
+
+Screen -> Control: cadastroProduto(nome, fornecedorId, tipo)
+activate Control
+
+Control -> Setor: cadastroProduto(nome, fornecedorId, tipo)
+activate Setor
+
+Setor -> Persistence: carregarProdutos(filtro)
+activate Persistence
+Persistence --> Setor: List<Produto>
+deactivate Persistence
+
+Setor -> Setor: Calcula novo ID sequencial
+
+create Produto
+Setor -> Produto: new(id, nome, 0, fornecedorId, setor)
+activate Produto
+Produto --> Setor
+deactivate Produto
+
+Setor -> Persistence: salvarProduto(novoProduto)
+activate Persistence
+
+Persistence -> Persistence: carregarProdutos(filtro)
+Persistence -> Persistence: Adiciona/Atualiza produto na lista
+Persistence -> Persistence: salvarProdutos(lista)
+Persistence --> Setor: void
+deactivate Persistence
+
+Setor --> Control: void
+deactivate Setor
+
+Control --> Screen: boolean (sucesso)
+deactivate Control
+
+Screen --> Usuário: Exibe mensagem de sucesso
+deactivate Screen
+
+@enduml

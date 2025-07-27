@@ -1,0 +1,69 @@
+@startuml ModeloER
+
+' Configurações visuais
+skinparam linetype ortho
+skinparam rectangle {
+    shadowing false
+}
+
+' Entidade Fornecedor
+entity "Fornecedor" as Fornecedor {
+  + **id_fornecedor (PK)** : INT
+  --
+  - nome : VARCHAR
+  - cnpj : VARCHAR
+  - telefone : VARCHAR
+  - endereco : VARCHAR
+  - email : VARCHAR
+}
+
+' Entidade Produto (Catálogo)
+entity "Produto" as Produto {
+  + **id_produto (PK)** : INT
+  --
+  - nome : VARCHAR
+  - tipo : VARCHAR
+  # id_fornecedor (FK) : INT
+}
+
+' Entidade Setor
+entity "Setor" as Setor {
+  + **nome (PK)** : VARCHAR
+  --
+  - senha_hash : VARCHAR
+}
+
+' Entidade Estoque (Tabela Associativa entre Produto e Setor)
+entity "Estoque" as Estoque {
+  + **id_produto (PFK)** : INT
+  + **nome_setor (PFK)** : VARCHAR
+  --
+  - quantidade : INT
+  - lote : VARCHAR
+  - validade : DATE
+  - ultimo_responsavel : VARCHAR
+  - data_ultimo_responsavel : DATE
+}
+
+' Entidade Pedido
+entity "Pedido" as Pedido {
+  + **id_pedido (PK)** : INT
+  --
+  # setor_solicitante (FK) : VARCHAR
+  # setor_responsavel (FK) : VARCHAR
+  # id_produto (FK) : INT
+  - data_pedido : DATE
+  - quantidade : INT
+  - estado : VARCHAR
+  - detalhes : VARCHAR
+}
+
+' Relacionamentos
+Fornecedor "1" -- "0..*" Produto : "fornece"
+Produto "1" -- "0..*" Estoque : "possui"
+Setor "1" -- "0..*" Estoque : "contém"
+Produto "1" -- "0..*" Pedido : "solicita"
+Setor "1" -- "0..*" Pedido : "é solicitante em"
+Setor "1" -- "0..*" Pedido : "é responsável por"
+
+@enduml

@@ -1,0 +1,89 @@
+@startuml RetiradaProduto
+actor "Usuário (Setor Responsável)" as User
+participant ":pedidosScreen" as Screen
+participant ":PedidosControl" as Control
+participant "setorResponsavel:Setor" as SetorOrigem
+participant "setorDestino:Setor" as SetorDestino
+participant ":PersistenceService" as Persistence
+
+autonumber
+
+User -> Screen: Seleciona e aprova pedido
+activate Screen
+
+Screen -> Control: respostaPedido(pedidoId, true, responsavel, detalhes)
+activate Control
+
+Control -> Control: moverProduto(produtoId, qtd, setorDestino, ...)
+activate Control
+
+Control -> SetorOrigem: retiradaProduto(produtoId, quantidade)
+activate SetorOrigem
+
+SetorOrigem -> Persistence: carregarProdutos(p.id == produtoId)
+activate Persistence
+Persistence --> SetorOrigem: produto
+deactivate Persistence
+
+SetorOrigem -> SetorOrigem: produto.setQuantidade(antiga - quantidade)
+SetorOrigem -> Persistence: salvarProduto(produto)
+activate Persistence
+Persistence --> SetorOrigem: void
+deactivate Persistence
+
+create "produtoRetirado:Produto" as ProdutoClone
+SetorOrigem -> ProdutoClone: clone(quantidade)
+activate ProdutoClone
+ProdutoClone --> SetorOrigem: produtoRetirado
+deactivate ProdutoClone
+
+SetorOrigem --> Control: produtoRetirado
+deactivate SetorOrigem
+
+Control -> SetorDestino: entradaProduto(produtoRetirado)
+activate SetorDestino
+
+SetorDestino -> Persistence: carregarProdutos(p.id == produtoId)
+activate Persistence
+Persistence --> SetorDestino: produtoExistente (ou null)
+deactivate Persistence
+
+alt produto já existe no setor de destino
+    SetorDestino -> SetorDestino: produtoExistente.setQuantidade(antiga + quantidade)
+    SetorDestino -> Persistence: salvarProduto(produtoExistente)
+else produto é novo no setor de destino
+    SetorDestino -> Persistence: salvarProduto(produtoRetirado)
+end
+activate Persistence
+Persistence --> SetorDestino: void
+deactivate Persistence
+
+SetorDestino --> Control: void
+deactivate SetorDestino
+
+Control --> Control: boolean (true)
+deactivate Control
+
+Control -> SetorOrigem: aprovarPedido(pedido, true)
+activate SetorOrigem
+
+SetorOrigem -> Persistence: carregarPedidos(...)
+activate Persistence
+Persistence --> SetorOrigem: List<Pedido>
+deactivate Persistence
+
+SetorOrigem -> SetorOrigem: pedido.setEstado("Aprovado")
+SetorOrigem -> Persistence: salvarPedidos(listaAtualizada)
+activate Persistence
+Persistence --> SetorOrigem: void
+deactivate Persistence
+
+SetorOrigem --> Control: void
+deactivate SetorOrigem
+
+Control --> Screen: boolean (true)
+deactivate Control
+
+Screen --> User: Exibe mensagem de sucesso
+deactivate Screen
+@enduml

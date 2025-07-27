@@ -1,0 +1,61 @@
+@startuml GerarPedido
+actor Usuário
+participant ":pedidosScreen" as Screen
+participant ":EstoqueControl" as EstoqueCtrl
+participant ":PedidosControl" as PedidosCtrl
+participant ":PersistenceService" as Persistence
+participant "novoPedido:Pedido" as Pedido
+
+autonumber
+
+Usuário -> Screen: Inicia geração de novo pedido
+activate Screen
+
+Screen -> EstoqueCtrl: listarProdutosCadastrados()
+activate EstoqueCtrl
+
+EstoqueCtrl -> Persistence: carregarProdutos(p.setor == "compras")
+activate Persistence
+Persistence --> EstoqueCtrl: List<Produto>
+deactivate Persistence
+
+EstoqueCtrl --> Screen: String[] (lista de produtos)
+deactivate EstoqueCtrl
+
+Screen --> Usuário: Exibe lista de produtos
+Usuário -> Screen: Seleciona produto (ID) e informa quantidade
+
+Screen -> PedidosCtrl: gerarPedido(produtoId, quantidade)
+activate PedidosCtrl
+
+PedidosCtrl -> Persistence: getNextPedidoId()
+activate Persistence
+Persistence --> PedidosCtrl: int (novoId)
+deactivate Persistence
+
+PedidosCtrl -> Persistence: carregarProdutos(p.id == produtoId)
+activate Persistence
+Persistence --> PedidosCtrl: produtoModelo
+deactivate Persistence
+
+PedidosCtrl -> PedidosCtrl: Determina setor responsável (com base no tipo do produto)
+
+create Pedido
+PedidosCtrl -> Pedido: new(novoId, setorSolicitante, setorResponsavel, nomeProduto, quantidade)
+activate Pedido
+Pedido --> PedidosCtrl
+deactivate Pedido
+
+PedidosCtrl -> Persistence: salvarPedido(novoPedido)
+activate Persistence
+Persistence -> Persistence: carregarPedidos(...)
+Persistence -> Persistence: Adiciona novo pedido à lista
+Persistence -> Persistence: salvarPedidos(listaAtualizada)
+Persistence --> PedidosCtrl: void
+deactivate Persistence
+
+PedidosCtrl --> Screen: boolean (sucesso)
+deactivate PedidosCtrl
+
+Screen --> Usuário: Exibe mensagem de sucesso
+@enduml

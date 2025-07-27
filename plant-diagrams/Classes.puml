@@ -13,25 +13,24 @@ class Fornecedor {
 }
 
 class Produto {
-  # id : int
-  # nome : String
-  # quantidade : int
-  # idFornecedor : int
-  # setor : String
+  - id : int
+  - nome : String
+  - quantidade : int
+  - idFornecedor : int
+  - setor : String
   + toCSV() : String
   + {static} fromCSV(values: String[]) : Produto
   + clone(novaQuantidade: int) : Produto
 }
 
-class Medicacao {
+class Medicacao extends Produto {
   - lote : String
   - validade : Date
   - ultimoResponsavel : String
   - dataUltimoResponsavel : Date
   + verificarValidade() : boolean
   + atualizarResponsavel(responsavel: String) : void
-  + toCSV() : String
-  + {static} fromCSV(values: String[]) : Medicacao
+  + atualizarDetalhes(detalhes: String) : void
 }
 
 ' Classes de Domínio (Setor)
@@ -46,16 +45,18 @@ class Pedido {
   - detalhes : String
   + {static} carregar(linhaCsv: String) : Pedido
   + salvar() : String
+  + compare(pedido: Pedido) : boolean
 }
 
-class Setor {
+abstract class Setor {
   # nome : String
   - senha : String
-  + validarSenha(senha: String) : boolean
   + {static} carregar(nomeSetor: String) : Setor
+  + validarSenha(senha: String) : boolean
   + criarPedido(pedido: Pedido) : void
   + aprovarPedido(pedido: Pedido, aprovado: boolean) : void
   + listarPedidos() : List<Pedido>
+  + listarPedidosPorEstado(estado: String) : List<String>
   + entradaProduto(produto: Produto) : void
   + retiradaProduto(id: int, quantidade: int) : Produto
   + consumirProduto(id: int, quantidade: int) : void
@@ -63,15 +64,16 @@ class Setor {
   + getProduto(id: int) : Produto
 }
 
-class SetorEntrada {
+class SetorEntrada extends Setor {
   + entradaProduto(produto: Produto) : void
+  - distribuirProduto(produto: Produto) : void
 }
 
-class SetorCadastro {
-  + cadastroFornecedor(nome: String, ...): void
+class SetorCadastro extends Setor {
+  + cadastroFornecedor(nome: String, cnpj: String, ...) : void
   + getFornecedores() : List<Fornecedor>
   + getFornecedor(id: int) : Fornecedor
-  + cadastroProduto(nome: String, ...): void
+  + cadastroProduto(nome: String, fornecedorId: int, tipo: String) : void
   + retiradaProduto(id: int, quantidade: int) : Produto
 }
 
@@ -100,16 +102,9 @@ class Auxiliar {
   + {static} encrypt(setor: String, senha: String) : String
 }
 
-
-' Relacionamentos
-Produto <|-- Medicacao
-Setor <|-- SetorEntrada
-Setor <|-- SetorCadastro
-
 Setor ..> PersistenceService : usa
-Pedido ..> PersistenceService : usa
 SetorCadastro ..> Fornecedor : gerencia
-Produto "1" -- "1" Fornecedor : é fornecido por
+Produto "1" -- "1" Fornecedor : é fornecido por >
 
 note top of SetorCadastro
   Setor de compras, responsável
@@ -120,6 +115,7 @@ end note
 note bottom of SetorEntrada
   Almoxarifado, ponto central
   de recebimento de produtos.
+  Distribui para outros setores.
 end note
 
 @enduml
