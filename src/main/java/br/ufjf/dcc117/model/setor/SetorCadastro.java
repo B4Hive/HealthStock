@@ -81,6 +81,29 @@ public class SetorCadastro extends Setor{
         return null; // Retorna null se não encontrar o fornecedor
     }
 
+    public boolean editarFornecedor(int id, String nome, String cnpj, String telefone, String endereco, String email) {
+        File file = new File("src/main/resources/fornecedores.csv");
+        List<Fornecedor> fornecedores = carregarFornecedores(file);
+        Fornecedor fornecedorParaEditar = null;
+        for (Fornecedor f : fornecedores) {
+            if (f.getId() == id) {
+                fornecedorParaEditar = f;
+                break;
+            }
+        }
+
+        if (fornecedorParaEditar != null) {
+            fornecedorParaEditar.setNome(nome);
+            fornecedorParaEditar.setCnpj(cnpj);
+            fornecedorParaEditar.setTelefone(telefone);
+            fornecedorParaEditar.setEndereco(endereco);
+            fornecedorParaEditar.setEmail(email);
+            salvarFornecedores(file, fornecedores);
+            return true;
+        }
+        return false;
+    }
+
     public void cadastroProduto(String nome, int fornecedorId, String tipoProduto) {
         List<Produto> todosProdutos = PersistenceService.carregarProdutos(p -> true);
         int novoId = todosProdutos.stream().mapToInt(Produto::getID).max().orElse(0) + 1;

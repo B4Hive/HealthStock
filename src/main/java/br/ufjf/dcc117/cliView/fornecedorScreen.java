@@ -57,7 +57,57 @@ public class fornecedorScreen {
     }
 
     public static void editarFornecedor(int fornecedorId) {
-        CLI.NYI("Editar Fornecedor"); // TODO: Implementar edição de fornecedor
+        if (!Control.setorCadastro()) {
+            CLI.message("Você não tem permissão para editar fornecedores.");
+            return;
+        }
+
+        String[] fornecedorOriginal = FornecedorControl.getFornecedor(fornecedorId);
+        if (fornecedorOriginal == null) {
+            CLI.message("Fornecedor não encontrado.");
+            return;
+        }
+
+        String nome = fornecedorOriginal[1];
+        String cnpj = fornecedorOriginal[2];
+        String telefone = fornecedorOriginal[3];
+        String endereco = fornecedorOriginal[4];
+        String email = fornecedorOriginal[5];
+
+        int choice = -1;
+        while (choice != 0) {
+            CLI.clear();
+            System.out.println("Editando Fornecedor: " + fornecedorOriginal[1]);
+            System.out.println("\nValores Atuais:");
+            System.out.println("1. Nome: " + nome);
+            System.out.println("2. CNPJ: " + cnpj);
+            System.out.println("3. Telefone: " + telefone);
+            System.out.println("4. Endereço: " + endereco);
+            System.out.println("5. Email: " + email);
+            
+            CLI.printMenu("\nO que você deseja alterar?", new String[]{"Nome", "CNPJ", "Telefone", "Endereço", "Email"});
+            System.out.println("6. Salvar e Sair");
+
+            choice = in.nextInt(); in.nextLine();
+
+            switch (choice) {
+                case 1 -> { System.out.print("Novo nome: "); nome = in.nextLine(); }
+                case 2 -> { System.out.print("Novo CNPJ: "); cnpj = in.nextLine(); }
+                case 3 -> { System.out.print("Novo telefone: "); telefone = in.nextLine(); }
+                case 4 -> { System.out.print("Novo endereço: "); endereco = in.nextLine(); }
+                case 5 -> { System.out.print("Novo email: "); email = in.nextLine(); }
+                case 6 -> {
+                    if (FornecedorControl.editarFornecedor(fornecedorId, nome, cnpj, telefone, endereco, email)) {
+                        CLI.message("Fornecedor editado com sucesso!");
+                    } else {
+                        CLI.message("Falha ao editar o fornecedor.");
+                    }
+                    choice = 0; // Força a saída do loop
+                }
+                case 0 -> CLI.message("Edição cancelada.");
+                default -> CLI.message("Opção inválida.");
+            }
+        }
     }
 
     public static void cadastroFornecedor() {

@@ -64,6 +64,19 @@ public class EstoqueControl extends Control {
         return produto;
     }
 
+    public static String[] getProdutoMestre(int produtoId) {
+        Produto p = PersistenceService.carregarProdutos(prod -> prod.getID() == produtoId && prod.getSetor().equalsIgnoreCase(Auxiliar.SETOR_CADASTRO))
+                .stream().findFirst().orElse(null);
+        if (p == null) return null;
+
+        return new String[] {
+            String.valueOf(p.getID()),
+            p.getNome(),
+            String.valueOf(p.getQuantidade()),
+            String.valueOf(p.getIdFornecedor())
+        };
+    }
+
     public static void consumirProduto(int produtoId, int quantidade) {
         if (setor == null)
             return;
@@ -108,5 +121,25 @@ public class EstoqueControl extends Control {
             Auxiliar.error("Control.cadastroProduto: Setor não tem permissão para cadastrar produtos.");
         }
         return false;
+    }
+
+    public static boolean editarProduto(int produtoId, String novoNome, int novoFornecedorId) {
+        if (!(setor instanceof SetorCadastro)) {
+            Auxiliar.error("Control.editarProduto: Setor não tem permissão para editar produtos.");
+            return false;
+        }
+        // Carrega todos os produtos com o mesmo ID (de todos os setores)
+        List<Produto> produtosParaAtualizar = PersistenceService.carregarProdutos(p -> p.getID() == produtoId);
+        if (produtosParaAtualizar.isEmpty()) {
+            Auxiliar.error("Control.editarProduto: Produto não encontrado: " + produtoId);
+            return false;
+        }
+
+        // Atualiza todos os produtos encontrados
+        for (Produto p : produtosParaAtualizar) {
+            p.atualizar(novoNome, novoFornecedorId);
+            PersistenceService.salvarProduto(p); // Salva cada produto atualizado
+        }
+        return true;
     }
 }

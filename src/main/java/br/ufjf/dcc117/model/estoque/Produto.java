@@ -58,6 +58,11 @@ public class Produto {
         this.setor = setor;
     }
 
+    public void atualizar(String nome, int idFornecedor) {
+        this.nome = nome;
+        this.idFornecedor = idFornecedor;
+    }
+
     public String toCSV() {
         return String.format("%d,%s,%d,%d,%s,Produto,NULL,NULL,NULL,NULL",
                 this.id, this.nome, this.quantidade, this.idFornecedor, this.setor);

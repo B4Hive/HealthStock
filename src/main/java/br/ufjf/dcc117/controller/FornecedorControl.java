@@ -46,4 +46,13 @@ public class FornecedorControl extends Control {
         setorCadastro.cadastroFornecedor(nome, cnpj, telefone, endereco, email);
         return true;
     }
+
+    public static boolean editarFornecedor(int id, String nome, String cnpj, String telefone, String endereco, String email) {
+        if (!(setor instanceof SetorCadastro)) {
+            Auxiliar.error("FornecedorControl.editarFornecedor: Apenas o setor de cadastro pode editar fornecedores.");
+            return false;
+        }
+        SetorCadastro setorCadastro = (SetorCadastro) setor;
+        return setorCadastro.editarFornecedor(id, nome, cnpj, telefone, endereco, email);
+    }
 }

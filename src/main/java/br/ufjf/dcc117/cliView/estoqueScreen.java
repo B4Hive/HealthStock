@@ -84,14 +84,69 @@ public class estoqueScreen {
     }
 
     public static void editar(int produtoId) {
-        CLI.NYI("Edição de produto"); // TODO: Implementar edição de produto
+        if (!Control.setorCadastro()) {
+            CLI.message("Você não tem permissão para editar produtos.");
+            return;
+        }
+
+        String[] produtoOriginal = EstoqueControl.getProdutoMestre(produtoId);
+        if (produtoOriginal == null) {
+            CLI.message("Produto mestre não encontrado para edição.");
+            return;
+        }
+
+        String novoNome = produtoOriginal[1];
+        int novoFornecedorId = Integer.parseInt(produtoOriginal[3]);
+
+        int choice = -1;
+        while (choice != 0) {
+            CLI.clear();
+            System.out.println("Editando Produto: " + produtoOriginal[1]);
+            System.out.println("\nValores Atuais:");
+            System.out.println("1. Nome: " + novoNome);
+            System.out.println("2. Fornecedor ID: " + novoFornecedorId);
+            
+            CLI.printMenu("\nO que você deseja alterar?", new String[]{"Nome", "Fornecedor"});
+            System.out.println("3. Salvar e Sair");
+
+            choice = in.nextInt(); in.nextLine();
+
+            switch (choice) {
+                case 1 -> {
+                    System.out.print("Digite o novo nome: ");
+                    novoNome = in.nextLine();
+                }
+                case 2 -> {
+                    System.out.println("Selecione o novo fornecedor:");
+                    String[] fornecedores = FornecedorControl.listarFornecedores();
+                    CLI.printMenu("Fornecedores", fornecedores);
+                    System.out.print("ID do novo fornecedor: ");
+                    int idSelecionado = in.nextInt(); in.nextLine();
+                    if (idSelecionado > 0 && idSelecionado <= fornecedores.length) {
+                        novoFornecedorId = idSelecionado;
+                    } else {
+                        CLI.message("Seleção de fornecedor inválida. Nenhuma alteração feita.");
+                    }
+                }
+                case 3 -> {
+                    if (EstoqueControl.editarProduto(produtoId, novoNome, novoFornecedorId)) {
+                        CLI.message("Produto editado com sucesso!");
+                    } else {
+                        CLI.message("Falha ao editar o produto.");
+                    }
+                    choice = 0; // Força a saída do loop
+                }
+                case 0 -> CLI.message("Edição cancelada.");
+                default -> CLI.message("Opção inválida.");
+            }
+        }
     }
 
-    public static void cadastroProduto(String nome) {
+    public static boolean cadastroProduto(String nome) {
         CLI.clear();
         if (!Control.setorCadastro()){
             CLI.message("Setor não tem permissão para cadastrar produtos.");
-            return;
+            return false;
         }
         System.out.println("Cadastro de Produto");
         System.out.println("Nome do Produto: " + nome);
@@ -99,7 +154,7 @@ public class estoqueScreen {
         int tipo = in.nextInt(); in.nextLine();
         if (tipo < 1 || tipo > 2) {
             CLI.message("Tipo inválido, operação cancelada.");
-            return;
+            return false;
         }
         String tipoProduto = tipo == 1 ? "Medicacao" : "Produto";
         System.out.println("Selecione o Fornecedor:");
@@ -109,13 +164,17 @@ public class estoqueScreen {
         if (fornecedorId > 0 && fornecedorId <= fornecedores.length) {
             if (EstoqueControl.cadastroProduto(nome, fornecedorId, tipoProduto)){
                 CLI.message("Produto cadastrado com sucesso.");
+                return true;
             } else {
                 CLI.message("Erro ao cadastrar produto.");
+                return false;
             }
         } else if (fornecedorId == 0) {
             CLI.message("Cadastro de produto cancelado.");
+            return false;
         } else {
             CLI.message("Fornecedor inválido, operação cancelada.");
+            return false;
         }
     }
 

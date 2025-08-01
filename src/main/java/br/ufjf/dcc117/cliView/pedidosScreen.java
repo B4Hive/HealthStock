@@ -65,15 +65,21 @@ public class pedidosScreen {
                         CLI.message("Você não tem permissão para aprovar este pedido.");
                         return;
                     }
-                    if (!EstoqueControl.verificarProduto(pedido[4])) {
+                    
+                    boolean produtoExisteOuFoiCadastrado = EstoqueControl.verificarProduto(pedido[4]);
+                    if (!produtoExisteOuFoiCadastrado) {
                         if (Control.setorCadastro()) {
-                            estoqueScreen.cadastroProduto(pedido[4]);
-                            
+                            produtoExisteOuFoiCadastrado = estoqueScreen.cadastroProduto(pedido[4]);
+                            if (!produtoExisteOuFoiCadastrado) {
+                                CLI.message("Cadastro do produto falhou ou foi cancelado. A aprovação do pedido não pode continuar.");
+                                return; // Aborta a aprovação
+                            }
                         } else {
                             CLI.message("Produto não encontrado e setor não tem permissão para cadastrar.");
                             return;
                         }
                     }
+
                     // Verifica se o produto precisa de detalhes E se os detalhes ainda não foram preenchidos
                     if (EstoqueControl.produtoPrecisaDeDetalhes(pedido[4]) && (pedido[7] == null || pedido[7].isEmpty() || pedido[7].equalsIgnoreCase("NULL"))){
                         System.out.println("Digite o Lote do produto:");
@@ -90,7 +96,6 @@ public class pedidosScreen {
                     }
                     if (PedidosControl.respostaPedido(pedidoId, true, responsavel, pedido[7])) {
                         CLI.message("Pedido aprovado com sucesso.");
-                        // TODO: em caso de cadastro, verificar se o cadastro foi concluído com sucesso antes de aprovar
                     } else {
                         CLI.message("Falha ao aprovar o pedido.");
                     }
