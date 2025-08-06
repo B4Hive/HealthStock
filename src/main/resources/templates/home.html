@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthstock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Suas animações e estilos personalizados são mantidos */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+        }
+
+        .whitespace {
+            height: 5.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <div th:if="${session.setorLogado}">
+
+        <header class="bg-gray-800 shadow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <h1 class="text-white text-xl font-semibold">Healthstock</h1>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-300 text-sm">Bem-vindo, <strong th:text="${session.setorLogado.nome}">ALMOXARIFADO</strong>!</span>
+                    
+                    <a th:href="@{/logout}" class="ml-6 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">
+                        Sair
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
+                <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <a th:href="@{/pedidos}" class="block p-6 h-full">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mb-4">📑</div>
+                            <h2 class="text-lg font-medium text-gray-900 mb-2">Listar Solicitações</h2>
+                            <p class="text-sm text-gray-600">Visualizar todas as solicitações de produtos</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <a th:href="@{/estoque}" class="block p-6 h-full">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">📋</div>
+                            <h2 class="text-lg font-medium text-gray-900 mb-2">Listar Estoque</h2>
+                            <p class="text-sm text-gray-600">Visualizar todos os produtos em estoque</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div th:if="${session.setorLogado != null && session.setorLogado.nome == 'compras'}" class="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <a th:href="@{/fornecedores}" class="block p-6 h-full">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4">👥</div>
+                            <h2 class="text-lg font-medium text-gray-900 mb-2">Listar Fornecedores</h2>
+                            <p class="text-sm text-gray-600">Visualizar todos os fornecedores cadastrados</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div th:if="${session.setorLogado != null && session.setorLogado.nome != 'compras'}" class="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <a href="/pedidos/novo" class="block p-6 h-full">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mb-4">📝</div>
+                            <h2 class="text-lg font-medium text-gray-900 mb-2">Fazer Solicitação</h2>
+                            <p class="text-sm text-gray-600">Registrar uma nova solicitação de produto</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-gray-800 text-white py-6 mt-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <p class="text-center">© <span id="currentYear"></span> Healthstock</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>
