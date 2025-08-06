@@ -1,3 +1,16 @@
-ID,Nome,CNPJ,Telefone,Endereco,Email
-1,MedShop,123456789,321654987,ruaaaaaaa,a@b.c
-2,Hoyoverse,987654321,13456789,hoyo@verse.ass,eraisso
+id,nome,cnpj,telefone,email,endereco
+1,MedShop,123456789,321654987,med@shop.com,rua cbd
+2,Hoyoverse,987654321,13456789,eraisso,hoyo@verse.ass
+3,Farmaco Dist.,33.444.555/0001-66,(32) 3215-3040, 2500,"Av. Itamar Franco
+4,Saude Total Suprimentos,44.555.666/0001-77,(32) 3215-4050, 800,"R. Halfeld
+5,Pro-Hospitalar,55.666.777/0001-88,(32) 3215-5060, 300,"Av. Getulio Vargas
+6,Becton Dickinson,66.777.888/0001-99,(11) 5185-9988, 1500,"Av. Paulista
+7,Johnson & Johnson,77.888.999/0001-00,(11) 3030-1122, 4500,"Av. Faria Lima
+8,3M do Brasil,88.999.000/0001-11,(19) 3838-7000, km 110,"Rod. Anhanguera
+9,Cremer S.A.,99.000.111/0001-22,(47) 3321-8000, 291,"R. Iguacu
+10,Labor Import,10.111.222/0001-33,(31) 3665-1555, 8000,"Av. do Contorno
+11,Cirurgica Express,11.222.333/0001-44,(32) 3215-1020, 1000,"Av. Rio Branco
+12,Medix Equipamentos,22.333.444/0001-55,(32) 3215-2030, 500,"R. Santo Antonio
+13,Darlan Henrique da Costa Silva,21606025001266,32988123842,darlan.silva@ice.ufjf.br,Rua Heitor Santos Júnior
+14,Bruno,2134309899133,32149964,Rua A,bruno@email.com
+15,Darlan Henrique da Costa ,21606025,32988123842,Rua Heitor Santos Júnior,darlan.silva@estudante.ufjf.br
