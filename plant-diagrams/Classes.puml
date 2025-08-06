@@ -35,17 +35,21 @@ class Medicacao extends Produto {
 
 ' Classes de Domínio (Setor)
 class Pedido {
-  - id : int
-  - setorSolicitante : String
-  - setorResponsavel : String
-  - dataPedido : Date
-  - produto : String
-  - quantidade : int
-  - estado : String
-  - detalhes : String
-  + {static} carregar(linhaCsv: String) : Pedido
-  + salvar() : String
-  + compare(pedido: Pedido) : boolean
+    - final int id
+    - final String setorSolicitante
+    - final String setorResponsavel
+    - final String produto
+    - final int quantidade
+    - String estado
+    - String detalhes
+    + Date dataPedido
+    
+    + Pedido(int, String, String, String, int)
+    + Pedido(int, String, String, String, int, String, String, Date)
+    + Pedido(int, String, String, String, int, String, String)
+    + toCSV(): String
+    + setDataPedido(Date): void
+    + setDetalhes(String): void
 }
 
 abstract class Setor {

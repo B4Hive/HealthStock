@@ -5,13 +5,13 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import br.ufjf.dcc117.model.estoque.Medicacao;
 import br.ufjf.dcc117.model.estoque.Produto;
@@ -19,116 +19,141 @@ import br.ufjf.dcc117.model.setor.Pedido;
 
 public class PersistenceService {
 
-    private static final String PRODUTOS_CSV = "src/main/resources/produtos.csv";
     private static final String PEDIDOS_FILE = "src/main/resources/pedidos.csv";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
-    // Métodos para Produtos
-
-    public static List<Produto> carregarProdutos(Predicate<Produto> filtro) {
-        List<Produto> produtos = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(PRODUTOS_CSV))) {
-            String line;
-            br.readLine(); // Pular cabeçalho
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(",");
-                Produto produto;
-                String tipoProduto = values[5];
-                if ("Medicacao".equalsIgnoreCase(tipoProduto)) {
-                    produto = Medicacao.fromCSV(values);
-                } else {
-                    produto = Produto.fromCSV(values);
-                }
-                if (filtro.test(produto)) {
-                    produtos.add(produto);
-                }
-            }
-        } catch (IOException e) {
-            Auxiliar.error("PersistenceService.carregarProdutos: " + e.getMessage());
-        }
-        return produtos;
+    public static int getNextProdutoInstanceId() {
+        List<Produto> produtos = carregarProdutos(p -> true);
+        return produtos.stream().mapToInt(Produto::getID).max().orElse(0) + 1;
     }
 
-    public static void salvarProdutos(List<Produto> todosProdutos) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(PRODUTOS_CSV))) {
-            pw.println("id,nome,quantidade,idFornecedor,setor,tipo,lote,validade,ultimoResponsavel,dataUltimoResponsavel");
-            for (Produto p : todosProdutos) {
-                pw.println(p.toCSV());
+    public static int getNextProdutoCodigo() {
+        List<Produto> produtos = carregarProdutos(p -> true);
+        return produtos.stream().mapToInt(Produto::getCodigoProduto).max().orElse(0) + 1;
+    }
+
+    public static List<Produto> carregarProdutos(Predicate<Produto> condicao) {
+        String path = "src/main/resources/produtos.csv";
+        List<Produto> produtos = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            br.readLine(); // Pula o cabeçalho
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                try { // <-- O TRY-CATCH DEVE ENVOLVER A LÓGICA DE PARSE
+                    String[] dados = linha.split(",");
+                    int id = Integer.parseInt(dados[0]);
+                    int codigoProduto = Integer.parseInt(dados[1]);
+                    String nome = dados[2];
+                    int quantidade = Integer.parseInt(dados[3]);
+                    int idFornecedor = Integer.parseInt(dados[4]);
+                    String setor = dados[5];
+                    String tipo = dados[6];
+
+                    Produto p;
+                    if ("Medicacao".equalsIgnoreCase(tipo)) {
+                        String lote = dados[7];
+                        Date validade = "NULL".equals(dados[8]) ? null : new SimpleDateFormat("yyyy-MM-dd").parse(dados[8]);
+                        String ultimoResponsavel = "NULL".equals(dados[9]) ? null : dados[9];
+                        Date dataUltimoResponsavel = "NULL".equals(dados[10]) ? null : new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(dados[10]);
+                        p = new Medicacao(id, codigoProduto, nome, quantidade, idFornecedor, setor, lote, validade, ultimoResponsavel, dataUltimoResponsavel);
+                    } else {
+                        p = new Produto(id, codigoProduto, nome, quantidade, idFornecedor, setor);
+                    }
+                    produtos.add(p);
+                } catch (ParseException | NumberFormatException e) {
+                    System.err.println("Erro ao processar linha do CSV de produtos: " + linha);
+                }
             }
         } catch (IOException e) {
-            Auxiliar.error("PersistenceService.salvarProdutos: " + e.getMessage());
         }
+        return produtos.stream().filter(condicao).collect(Collectors.toList());
     }
 
     public static void salvarProduto(Produto produto) {
-        List<Produto> produtos = carregarProdutos(p -> true); // Carrega todos
-        produtos.removeIf(p -> p.getID() == produto.getID() && p.getSetor().equalsIgnoreCase(produto.getSetor()));
+        List<Produto> produtos = carregarProdutos(p -> p.getID() != produto.getID());
         produtos.add(produto);
-        salvarProdutos(produtos);
+        salvarTodosProdutos(produtos);
     }
     
-    public static void removerProduto(Produto produto) {
-        List<Produto> produtos = carregarProdutos(p -> true);
-        produtos.removeIf(p -> p.getID() == produto.getID() && p.getSetor().equalsIgnoreCase(produto.getSetor()));
-        salvarProdutos(produtos);
+    public static void removerProduto(Produto produtoParaRemover) {
+        List<Produto> todosProdutos = carregarProdutos(p -> p.getID() != produtoParaRemover.getID());
+        salvarTodosProdutos(todosProdutos);
     }
 
-    // Métodos para Pedidos
+    public static void removerProdutos(List<Produto> produtosParaRemover) {
+        List<Produto> todosProdutos = carregarProdutos(p -> true);
+        todosProdutos.removeAll(produtosParaRemover);
+        salvarTodosProdutos(todosProdutos);
+    }
 
+    private static void salvarTodosProdutos(List<Produto> produtos) {
+        String path = "src/main/resources/produtos.csv";
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(path))) {
+            bw.write("id,codigoProduto,nome,quantidade,idFornecedor,setor,tipo,lote,validade,ultimoResponsavel,dataUltimoResponsavel");
+            bw.newLine();
+            for (Produto p : produtos) {
+                bw.write(p.toCSV());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+        }
+    }
+
+    // MÉTODOS DE PEDIDO CORRIGIDOS
     public static int getNextPedidoId() {
         List<Pedido> pedidos = carregarPedidos(p -> true);
         return pedidos.stream().mapToInt(Pedido::getId).max().orElse(0) + 1;
     }
 
-    public static List<Pedido> carregarPedidos(Predicate<Pedido> predicate) {
+    public static List<Pedido> carregarPedidos(Predicate<Pedido> condicao) {
         List<Pedido> pedidos = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(PEDIDOS_FILE))) {
-            String line;
-            br.readLine(); // Pular cabeçalho
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(",");
-                if (values.length >= 8) {
-                    try {
-                        int id = Integer.parseInt(values[0]);
-                        String setorSolicitante = values[1];
-                        String setorResponsavel = values[2];
-                        Date dataPedido = DATE_FORMAT.parse(values[3]);
-                        String produto = values[4];
-                        int quantidade = Integer.parseInt(values[5]);
-                        String estado = values[6];
-                        String detalhes = values[7].equalsIgnoreCase("NULL") ? "" : values[7];
-                        
-                        Pedido pedido = new Pedido(id, setorSolicitante, setorResponsavel, dataPedido, produto, quantidade, estado, detalhes);
-                        if (predicate.test(pedido)) {
-                            pedidos.add(pedido);
-                        }
-                    } catch (NumberFormatException | ParseException e) {
-                        System.err.println("Erro ao parsear pedido: " + line + " | Erro: " + e.getMessage());
+            br.readLine(); // Pula cabeçalho
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                try {
+                    String[] dados = linha.split(",");
+                    int id = Integer.parseInt(dados[0]);
+                    String setorSolicitante = dados[1];
+                    String setorResponsavel = dados[2];
+                    String produto = dados[3];
+                    int quantidade = Integer.parseInt(dados[4]);
+                    String estado = dados[5];
+                    String detalhes = dados[6];
+                    
+                    // Verificar se tem campo de data (novo formato)
+                    if (dados.length > 7) {
+                        Date dataPedido = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(dados[7]);
+                        pedidos.add(new Pedido(id, setorSolicitante, setorResponsavel, produto, quantidade, estado, detalhes, dataPedido));
+                    } else {
+                        // Formato antigo sem data
+                        pedidos.add(new Pedido(id, setorSolicitante, setorResponsavel, produto, quantidade, estado, detalhes));
                     }
+                } catch (ParseException | NumberFormatException e) {
+                    System.err.println("Erro ao processar linha do CSV de pedidos: " + linha);
                 }
             }
         } catch (IOException e) {
-            // Arquivo pode não existir na primeira execução
+            System.err.println("Erro ao ler arquivo de pedidos: " + e.getMessage());
         }
-        return pedidos;
+        return pedidos.stream().filter(condicao).collect(Collectors.toList());
     }
 
     public static void salvarPedido(Pedido pedido) {
         List<Pedido> pedidos = carregarPedidos(p -> p.getId() != pedido.getId());
         pedidos.add(pedido);
-        salvarPedidos(pedidos);
+        salvarTodosPedidos(pedidos);
     }
 
-    public static void salvarPedidos(List<Pedido> pedidos) {
+    private static void salvarTodosPedidos(List<Pedido> pedidos) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(PEDIDOS_FILE))) {
-            bw.write("id,setorSolicitante,setorResponsavel,dataPedido,produto,quantidade,estado,detalhes");
+            bw.write("id,setorSolicitante,setorResponsavel,produto,quantidade,estado,detalhes,dataPedido");
             bw.newLine();
             for (Pedido p : pedidos) {
-                bw.write(p.salvar());
+                bw.write(p.toCSV());
                 bw.newLine();
             }
         } catch (IOException e) {
-            Auxiliar.error("PersistenceService.salvarPedidos: " + e.getMessage());
+            System.err.println("Erro ao salvar pedidos: " + e.getMessage());
         }
     }
 }

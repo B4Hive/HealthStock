@@ -1,62 +1,34 @@
 package br.ufjf.dcc117.model.estoque;
 
+import java.util.Objects;
+
 public class Produto {
-
-    // << Atributos >>
-
-    private final int id;
+    private final int ID; // ID único da instância/lote
+    private final int codigoProduto; // ID para agrupar produtos do mesmo tipo
     private String nome;
     private int quantidade;
     private int idFornecedor;
-    private String setor;
+    private final String setor;
 
-    // << Construtor >>
-
-    public Produto(int id, String nome, int quantidade, int idFornecedor, String setor) {
-        this.id = id;
+    public Produto(int ID, int codigoProduto, String nome, int quantidade, int idFornecedor, String setor) {
+        this.ID = ID;
+        this.codigoProduto = codigoProduto;
         this.nome = nome;
         this.quantidade = quantidade;
         this.idFornecedor = idFornecedor;
         this.setor = setor;
     }
 
-    // << Getters e Setters >>
+    // Getters
+    public int getID() { return ID; }
+    public int getCodigoProduto() { return codigoProduto; }
+    public String getNome() { return nome; }
+    public int getQuantidade() { return quantidade; }
+    public int getIdFornecedor() { return idFornecedor; }
+    public String getSetor() { return setor; }
 
-    public int getID() {
-        return this.id;
-    }
-
-    public String getNome() {
-        return this.nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public int getQuantidade() {
-        return this.quantidade;
-    }
-
-    public void setQuantidade(int quantidade) {
-        this.quantidade = quantidade;
-    }
-
-    public int getIdFornecedor() {
-        return this.idFornecedor;
-    }
-
-    public void setIdFornecedor(int idFornecedor) {
-        this.idFornecedor = idFornecedor;
-    }
-
-    public String getSetor() {
-        return setor;
-    }
-
-    public void setSetor(String setor) {
-        this.setor = setor;
-    }
+    // Setters
+    public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
 
     public void atualizar(String nome, int idFornecedor) {
         this.nome = nome;
@@ -64,20 +36,29 @@ public class Produto {
     }
 
     public String toCSV() {
-        return String.format("%d,%s,%d,%d,%s,Produto,NULL,NULL,NULL,NULL",
-                this.id, this.nome, this.quantidade, this.idFornecedor, this.setor);
+        // CORREÇÃO: Adiciona placeholders para manter a consistência das colunas no CSV.
+        // Isso garante que toda linha no produtos.csv tenha o mesmo número de colunas.
+        return String.format("%d,%d,%s,%d,%d,%s,%s,NULL,NULL,NULL,NULL",
+                this.ID,
+                this.codigoProduto,
+                this.nome,
+                this.quantidade,
+                this.idFornecedor,
+                this.setor,
+                "Produto" // tipo
+        );
     }
 
-    public static Produto fromCSV(String[] values) {
-        int id = Integer.parseInt(values[0]);
-        String nome = values[1];
-        int quantidade = Integer.parseInt(values[2]);
-        int idFornecedor = Integer.parseInt(values[3]);
-        String setor = values[4];
-        return new Produto(id, nome, quantidade, idFornecedor, setor);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Produto produto = (Produto) o;
+        return ID == produto.ID; // A igualdade agora é definida pelo ID da instância
     }
 
-    public Produto clone(int novaQuantidade) {
-        return new Produto(this.id, this.nome, novaQuantidade, this.idFornecedor, this.setor);
+    @Override
+    public int hashCode() {
+        return Objects.hash(ID); // O hash code também é baseado no ID da instância
     }
 }
