@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>HealthStock - Detalhes do Fornecedor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container mt-5">
+        <div class="card" th:if="${fornecedor}">
+            <div class="card-header">
+                <h2 th:text="'Detalhes do Fornecedor: ' + ${fornecedor.nome}">Detalhes do Fornecedor</h2>
+            </div>
+            <div class="card-body">
+                <p><strong>ID:</strong> <span th:text="${fornecedor.id}"></span></p>
+                <p><strong>Nome:</strong> <span th:text="${fornecedor.nome}"></span></p>
+                <p><strong>CNPJ:</strong> <span th:text="${fornecedor.cnpj}"></span></p>
+                <p><strong>Telefone:</strong> <span th:text="${fornecedor.telefone}"></span></p>
+                <p><strong>Endereço:</strong> <span th:text="${fornecedor.endereco}"></span></p>
+                <p><strong>Email:</strong> <span th:text="${fornecedor.email}"></span></p>
+            </div>
+            <div class="card-footer">
+                <a th:href="@{/fornecedores/editar/{id}(id=${fornecedor.id})}" class="btn btn-warning">Editar</a>
+            </div>
+        </div>
+        <div th:if="${fornecedor == null}" class="alert alert-warning">
+            Fornecedor não encontrado.
+        </div>
+        <a href="/fornecedores" class="btn btn-primary mt-3">Voltar para a Lista</a>
+    </div>
+</body>
+</html>

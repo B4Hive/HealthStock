@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${action == 'novo'} ? 'Cadastro de Fornecedor' : 'Editar Fornecedor'"></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="ml-0 transition-all duration-300 sm:ml-64">
+        
+        <header th:if="${session.setorLogado}" class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 md:px-8 flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="ml-3 text-gray-700">Bem-vindo, <strong th:text="${session.setorLogado.nome}">Setor</strong>!</span>
+                    <a th:href="@{/logout}" class="ml-6 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">Sair</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 md:px-8">
+            
+            <form th:action="${action == 'novo'} ? @{/fornecedores/novo} : @{/fornecedores/editar}" method="post">
+                
+                <input type="hidden" name="id" th:if="${action == 'editar'}" th:value="${fornecedor.id}">
+
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-semibold text-gray-900" th:text="${action == 'novo'} ? 'Cadastrar Novo Fornecedor' : 'Editar Fornecedor'"></h1>
+                    <div class="flex space-x-3">
+                        <a th:href="@{/fornecedores}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                                th:text="${action == 'novo'} ? 'Salvar Fornecedor' : 'Salvar Alterações'">
+                            Salvar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow rounded-lg p-6 mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Informações do Fornecedor</h2>
+
+                    <div class="grid grid-cols-1 gap-6">
+                        <div>
+                            <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome do Fornecedor</label>
+                            <input type="text" id="nome" name="nome" th:value="${fornecedor.nome}" required
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                   placeholder="Nome da empresa">
+                        </div>
+
+                        <div>
+                            <label for="cnpj" class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
+                            <input type="text" id="cnpj" name="cnpj" th:value="${fornecedor.cnpj}" required
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                   placeholder="00.000.000/0000-00">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                            <input type="email" id="email" name="email" th:value="${fornecedor.email}" required
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                   placeholder="email@exemplo.com">
+                        </div>
+                        <div>
+                            <label for="telefone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                            <input type="text" id="telefone" name="telefone" th:value="${fornecedor.telefone}" required
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                   placeholder="(00) 0000-0000">
+                        </div>
+                        <div>
+                            <label for="endereco" class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                            <input type="text" id="endereco" name="endereco" th:value="${fornecedor.endereco}" required
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                   placeholder="Rua Exemplo, 123">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+</body>
+</html>
