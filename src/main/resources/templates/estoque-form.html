@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${action == 'novo'} ? 'Cadastro de Produto - HealthStock' : 'Editar Produto - HealthStock'"></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="ml-0 transition-all duration-300 sm:ml-64">
+        
+        <header th:if="${session.setorLogado}" class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 md:px-8 flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="ml-3 text-gray-700">Bem-vindo, <strong th:text="${session.setorLogado.nome}">Setor</strong>!</span>
+                    <a th:href="@{/logout}" class="ml-6 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">Sair</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 md:px-8">
+            <form th:action="${action == 'novo'} ? @{/estoque/novo} : @{/estoque/editar}" method="post">
+                <input type="hidden" id="codigoProduto" name="codigoProduto" th:if="${action == 'editar'}" th:value="${produto.codigoProduto}">
+
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-semibold text-gray-900" th:text="${action == 'novo'} ? 'Cadastrar Novo Tipo de Produto' : 'Editar Produto Mestre'"></h1>
+                    <div class="flex space-x-3">
+                        <a th:href="@{/estoque}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                                th:text="${action == 'novo'} ? 'Salvar Produto' : 'Salvar Alterações'">
+                            Salvar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow rounded-lg p-6 mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-6">Informações do Produto</h2>
+
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div>
+                            <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome do Produto</label>
+                            <input type="text" id="nome" name="nome" th:value="${produto.nome}" required
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                   placeholder="Ex: Seringa Descartável 10ml">
+                        </div>
+
+                        <div>
+                            <label for="fornecedorId" class="block text-sm font-medium text-gray-700 mb-1">Fornecedor</label>
+                            <select id="fornecedorId" th:name="${action == 'novo'} ? 'fornecedorId' : 'idFornecedor'" required
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="">Selecione um fornecedor</option>
+                                <option th:each="fornecedor : ${fornecedores}" 
+                                        th:value="${fornecedor.id}" 
+                                        th:text="${fornecedor.nome}"
+                                        th:selected="${produto != null and fornecedor.id == produto.idFornecedor}"></option>
+                            </select>
+                        </div>
+
+                        <div th:if="${action == 'novo'}">
+                            <label for="tipoProduto" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Produto</label>
+                            <select id="tipoProduto" name="tipoProduto" required
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="Produto">Produto Comum</option>
+                                <option value="Medicacao">Medicação (com lote e validade)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+</body>
+</html>
