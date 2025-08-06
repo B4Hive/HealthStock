@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Pedido - HealthStock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="ml-0 transition-all duration-300 sm:ml-64">
+        
+        <header th:if="${session.setorLogado}" class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 md:px-8 flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="ml-3 text-gray-700">Bem-vindo, <strong th:text="${session.setorLogado.nome}">Setor</strong>!</span>
+                    <a th:href="@{/logout}" class="ml-6 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">Sair</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 md:px-8">
+            
+            <div th:if="${pedido == null}" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+                <p>Pedido não encontrado.</p>
+            </div>
+
+            <div th:if="${pedido}">
+                <div class="bg-white shadow rounded-lg mb-6">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-800" th:text="'Detalhes do Pedido #' + ${pedido.id}"></h2>
+                    </div>
+                    <div class="p-6 text-sm text-gray-700 space-y-2">
+                        <p><strong>Produto:</strong> <span th:text="${pedido.produto}"></span></p>
+                        <p><strong>Quantidade:</strong> <span th:text="${pedido.quantidade}"></span></p>
+                        <p><strong>Data:</strong> <span th:text="${#dates.format(pedido.dataPedido, 'dd/MM/yyyy HH:mm')}"></span></p>
+                        <p><strong>Setor Solicitante:</strong> <span th:text="${pedido.setorSolicitante}"></span></p>
+                        <p><strong>Setor Responsável:</strong> <span th:text="${pedido.setorResponsavel}"></span></p>
+                        <p><strong>Estado:</strong> <span class="font-bold" th:text="${pedido.estado}"></span></p>
+                        <p><strong>Detalhes:</strong> <span th:text="${pedido.detalhes != null and !pedido.detalhes.equals('NULL') ? pedido.detalhes : 'N/A'}"></span></p>
+                    </div>
+                </div>
+
+                <div th:if="${session.setorLogado.nome == pedido.setorResponsavel and pedido.estado == 'Pendente'}" class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-800">Responder ao Pedido</h2>
+                    </div>
+                    <div class="p-6">
+
+                        <form th:if="${pedido.quantidade == 0}" th:action="@{/pedidos/responder}" method="post" class="space-y-4">
+                            <input type="hidden" name="pedidoId" th:value="${pedido.id}">
+                            <div>
+                                <label for="fornecedorId" class="block text-sm font-medium text-gray-700">Fornecedor (obrigatório para aprovação):</label>
+                                <select id="fornecedorId" name="fornecedorId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    <option value="">Selecione...</option>
+                                    <option th:each="fornecedor : ${fornecedores}" th:value="${fornecedor.id}" th:text="${fornecedor.nome}"></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="tipoProduto" class="block text-sm font-medium text-gray-700">Tipo de Produto (obrigatório para aprovação):</label>
+                                <select id="tipoProduto" name="tipoProduto" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                    <option value="Produto">Produto Comum</option>
+                                    <option value="Medicacao">Medicação</option>
+                                </select>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button type="submit" name="acao" value="aprovar" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Aprovar Cadastro</button>
+                                <button type="submit" name="acao" value="rejeitar" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" formnovalidate>Rejeitar</button>
+                            </div>
+                        </form>
+
+                        <form th:if="${pedido.quantidade > 0}" th:action="@{/pedidos/responder}" method="post" class="space-y-4">
+                            <input type="hidden" name="pedidoId" th:value="${pedido.id}">
+                            <div>
+                                <label for="responsavel" class="block text-sm font-medium text-gray-700">Responsável (obrigatório para aprovação):</label>
+                                <input type="text" id="responsavel" name="responsavel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                            </div>
+                            <div th:if="${produtoMestre != null and produtoMestre.class.simpleName == 'Medicacao'}" class="space-y-4">
+                                 <div>
+                                    <label for="lote" class="block text-sm font-medium text-gray-700">Lote (obrigatório para aprovação):</label>
+                                    <input type="text" id="lote" name="lote" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                 </div>
+                                 <div>
+                                    <label for="validade" class="block text-sm font-medium text-gray-700">Validade (obrigatório para aprovação):</label>
+                                    <input type="date" id="validade" name="validade" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                 </div>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button type="submit" name="acao" value="aprovar" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Aprovar</button>
+                                <button type="submit" name="acao" value="rejeitar" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" formnovalidate>Rejeitar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <a href="/pedidos" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Voltar para a Lista</a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
