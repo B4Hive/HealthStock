@@ -1,4 +1,1 @@
 id,codigoProduto,nome,quantidade,idFornecedor,setor,tipo,lote,validade,ultimoResponsavel,dataUltimoResponsavel
-2,2,Paracetamol,0,5,compras,Medicacao,MESTRE,NULL,NULL,NULL
-1,1,Seringas,0,2,compras,Produto,NULL,NULL,NULL,NULL
-3,3,Ibuprofeno,0,3,compras,Medicacao,MESTRE,NULL,NULL,NULL
