@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthStock - Detalhes do Produto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="ml-0 transition-all duration-300 sm:ml-64">
+        
+        <header th:if="${session.setorLogado}" class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 md:px-8 flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="ml-3 text-gray-700">Bem-vindo, <strong th:text="${session.setorLogado.nome}">Setor</strong>!</span>
+                    <a th:href="@{/logout}" class="ml-6 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">Sair</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 md:px-8">
+
+            <div th:if="${produto == null}" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+                <p class="font-bold">Atenção</p>
+                <p>Produto não encontrado.</p>
+            </div>
+
+            <div th:if="${produto}" class="bg-white shadow rounded-lg overflow-hidden">
+                
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center">
+                        <h2 class="text-xl font-semibold text-gray-800" th:text="'Detalhes: ' + ${produto.nome}"></h2>
+                        <span th:if="${produto.class.simpleName == 'Medicacao' and produto.isVencido()}" class="ml-3" title="Vencido">
+                            <i class="fa-solid fa-circle-xmark text-red-500 fa-lg"></i>
+                        </span>
+                        <span th:if="${produto.class.simpleName == 'Medicacao' and produto.isProximoVencimento()}" class="ml-3" title="Vencimento Próximo">
+                            <i class="fa-solid fa-triangle-exclamation text-yellow-500 fa-lg"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="p-6 text-sm text-gray-700 space-y-2">
+                    <p><strong>ID da Instância:</strong> <span class="font-mono" th:text="${produto.getID()}"></span></p>
+                    <p><strong>Nome:</strong> <span th:text="${produto.nome}"></span></p>
+                    <p><strong>Quantidade em Estoque:</strong> <span class="font-semibold text-lg" th:text="${produto.quantidade}"></span></p>
+                    <p><strong>ID do Fornecedor:</strong> <span class="font-mono" th:text="${produto.idFornecedor}"></span></p>
+
+                    <div th:if="${produto.class.simpleName == 'Medicacao'}" class="border-t border-gray-200 pt-4 mt-4">
+                        <h3 class="text-md font-semibold text-gray-800 mb-2">Detalhes da Medicação</h3>
+                        <p><strong>Lote:</strong> <span th:text="${produto.lote}"></span></p>
+                        <p><strong>Validade:</strong> <span th:text="${#dates.format(produto.validade, 'dd/MM/yyyy')}"></span></p>
+                        <p><strong>Último Responsável:</strong> <span th:text="${produto.ultimoResponsavel}"></span></p>
+                        <p><strong>Data da Última Movimentação:</strong> <span th:text="${#dates.format(produto.dataUltimoResponsavel, 'dd/MM/yyyy HH:mm')}"></span></p>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    
+                    <div th:if="${setor.nome == 'compras'}">
+                        <a th:href="@{/estoque/editar/{codigoProduto}(codigoProduto=${produto.getCodigoProduto()})}" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">Editar Produto Mestre</a>
+                    </div>
+
+                    <div th:if="${setor.nome != 'compras'}" class="flex items-start space-x-4">
+                        <form th:action="@{/estoque/consumir}" method="post" class="flex-grow">
+                            <input type="hidden" name="produtoId" th:value="${produto.getID()}">
+                            <label for="quantidade" class="block text-sm font-medium text-gray-700 mb-1">Ação Rápida</label>
+                            <div class="flex">
+                                <input type="number" name="quantidade" id="quantidade" placeholder="Qtd." required min="1" th:max="${produto.quantidade}"
+                                       th:disabled="${produto.class.simpleName == 'Medicacao' and produto.isVencido()}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-200">
+                                <button type="submit"
+                                        th:disabled="${produto.class.simpleName == 'Medicacao' and produto.isVencido()}"
+                                        class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-r-md disabled:bg-red-300 disabled:cursor-not-allowed">Consumir</button>
+                            </div>
+                            <div th:if="${produto.class.simpleName == 'Medicacao' and produto.isVencido()}" class="mt-1 text-xs text-red-600">
+                                Este produto está vencido e não pode ser consumido.
+                            </div>
+                        </form>
+                        <div class="pt-6">
+                           <a th:href="@{/pedidos/novo(produtoId=${produto.getID()})}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Gerar Pedido</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 bg-red-50 border-t border-red-200" th:if="${produto.class.simpleName == 'Medicacao' and produto.isVencido()}">
+                    <h3 class="text-lg font-bold text-red-800">Ação Irreversível</h3>
+                    <p class="text-sm text-red-700 mt-1">Este item está vencido. Você pode removê-lo permanentemente do estoque deste setor.</p>
+                    <form th:action="@{/estoque/deletar}" method="post" onsubmit="return confirm('Tem certeza que deseja remover este produto vencido do estoque?');" class="mt-3">
+                        <input type="hidden" name="produtoId" th:value="${produto.getID()}">
+                        <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded">
+                            <i class="fa-solid fa-trash-can"></i> Deletar Produto Vencido
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <a href="/estoque" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Voltar para a Lista</a>
+        </main>
+    </div>
+</body>
+</html>

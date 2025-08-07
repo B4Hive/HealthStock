@@ -1,5 +1,11 @@
-id,setorSolicitante,setorResponsavel,dataPedido,produto,quantidade,estado,detalhes
-1,almoxarifado,compras,2025-07-26,Primogem,0,Aprovado,NULL
-2,farmacia,compras,2025-07-26,Ritalina,0,Aprovado,NULL
-3,farmacia,compras,2025-07-26,Ritalina,50,Aprovado,NULL
-4,almoxarifado,compras,2025-07-26,Primogem,50,Aprovado,NULL
+id,setorSolicitante,setorResponsavel,produto,quantidade,estado,detalhes,dataPedido
+3,compras,compras,ETNA,0,Pendente,NULL,2025-08-06T19:47:46
+4,farmacia,almoxarifado,Seringas,100,Pendente,NULL,2025-08-06T19:52:32
+5,compras,farmacia,Paracetamol,19,Pendente,NULL,2025-08-06T19:54:40
+1,compras,compras,Ibuprofeno,0,Aprovado,NULL,2025-08-06T19:47:09
+2,compras,farmacia,Paracetamol,10,Rejeitado,NULL,2025-08-06T19:47:26
+6,almoxarifado,compras,Seringas,100,Pendente,NULL,2025-08-06T20:24:37
+7,almoxarifado,compras,Benzetacil,0,Pendente,NULL,2025-08-06T20:24:56
+8,farmacia,compras,Ibuprofeno,1000,Pendente,NULL,2025-08-06T20:25:52
+9,almoxarifado,compras,Seringas,18,Pendente,NULL,2025-08-06T20:39:40
+10,almoxarifado,compras,Gases,0,Pendente,NULL,2025-08-06T20:39:59

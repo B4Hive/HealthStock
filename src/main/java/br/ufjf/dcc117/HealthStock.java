@@ -1,16 +1,13 @@
 package br.ufjf.dcc117;
 
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import br.ufjf.dcc117.cliView.loginScreen;
-
+@SpringBootApplication
 public class HealthStock {
 
-    public static void main(String[] args) throws FileNotFoundException {
-        PrintStream logErro = new PrintStream("erros.log");
-        System.setErr(logErro);
-        loginScreen.show();
+    public static void main(String[] args) {
+        SpringApplication.run(HealthStock.class, args);
     }
     
 }

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import br.ufjf.dcc117.model.Auxiliar;
 import br.ufjf.dcc117.model.PersistenceService;
+import br.ufjf.dcc117.model.estoque.Medicacao;
 import br.ufjf.dcc117.model.estoque.Produto;
 
 public class Setor {
@@ -58,18 +59,12 @@ public class Setor {
     }
 
     public void aprovarPedido(Pedido pedido, boolean aprovado) {
-        List<Pedido> todosPedidos = PersistenceService.carregarPedidos(p -> true);
-        for (Pedido p : todosPedidos) {
-            if (p.getId() == pedido.getId()) {
-                p.setEstado(aprovado ? "Aprovado" : "Rejeitado");
-                break;
-            }
-        }
-        PersistenceService.salvarPedidos(todosPedidos);
+        pedido.setEstado(aprovado); // CORRIGIDO: O método agora aceita um boolean diretamente.
+        PersistenceService.salvarPedido(pedido); // CORRIGIDO: O método de salvar um único pedido já existe.
     }
 
     public List<Pedido> listarPedidos() {
-        return PersistenceService.carregarPedidos(p -> p.getSetorSolicitante().equalsIgnoreCase(this.nome) || p.getSetorResponsavel().equalsIgnoreCase(this.nome));
+        return PersistenceService.carregarPedidos(p -> p.getSetorResponsavel().equals(this.nome) || p.getSetorSolicitante().equals(this.nome));
     }
 
     public List<String> listarPedidosPorEstado(String estado) {
@@ -88,46 +83,27 @@ public class Setor {
     }
 
     // << Métodos de Estoque >>
-    public void entradaProduto(Produto produto) {
-        produto.setSetor(this.nome);
-        Produto existente = getProduto(produto.getID());
-        if (existente != null) {
-            existente.setQuantidade(existente.getQuantidade() + produto.getQuantidade());
-            PersistenceService.salvarProduto(existente);
-        } else {
-            PersistenceService.salvarProduto(produto);
+    public void removerProdutosVencidos() {
+        // 1. Carrega todos os produtos do setor.
+        List<Produto> produtosDoSetor = this.getProdutos();
+
+        // 2. Filtra para encontrar apenas os medicamentos vencidos.
+        List<Produto> produtosVencidos = produtosDoSetor.stream()
+                .filter(p -> p instanceof Medicacao && ((Medicacao) p).isVencido())
+                .collect(Collectors.toList());
+
+        // 3. Remove cada produto vencido usando o serviço de persistência.
+        if (!produtosVencidos.isEmpty()) {
+            PersistenceService.removerProdutos(produtosVencidos);
         }
     }
 
-    public Produto retiradaProduto(int id, int quantidade) {
-        Produto produto = getProduto(id);
-        if (produto != null && produto.getQuantidade() >= quantidade) {
-            produto.setQuantidade(produto.getQuantidade() - quantidade);
-            PersistenceService.salvarProduto(produto);
-            Produto produtoRetirado = produto.clone(quantidade);
-            return produtoRetirado;
-        }
-        return null;
-    }
-
-    public void consumirProduto(int id, int quantidade) {
-        Produto produto = getProduto(id);
-        if (produto != null && produto.getQuantidade() >= quantidade) {
-            produto.setQuantidade(produto.getQuantidade() - quantidade);
-            if (produto.getQuantidade() == 0) {
-                PersistenceService.removerProduto(produto);
-            } else {
-                PersistenceService.salvarProduto(produto);
-            }
-        }
-    }
-
+    // MÉTODOS RESTAURADOS PARA CORRIGIR ERROS EM CASCATA
     public List<Produto> getProdutos() {
         return PersistenceService.carregarProdutos(p -> p.getSetor().equalsIgnoreCase(this.nome));
     }
 
     public Produto getProduto(int id) {
-        return PersistenceService.carregarProdutos(p -> p.getSetor().equalsIgnoreCase(this.nome) && p.getID() == id)
-                .stream().findFirst().orElse(null);
+        return this.getProdutos().stream().filter(p -> p.getID() == id).findFirst().orElse(null);
     }
 }

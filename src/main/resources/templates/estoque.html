@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque - HealthStock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="ml-0 transition-all duration-300 sm:ml-64">
+        
+        <header th:if="${session.setorLogado}" class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 md:px-8 flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="ml-3 text-gray-700">Bem-vindo, <strong th:text="${session.setorLogado.nome}">Setor</strong>!</span>
+                    <a th:href="@{/logout}" class="ml-6 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">Sair</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 md:px-8">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-900">Gerenciamento de Estoque</h1>
+                <a th:if="${session.setorLogado != null && session.setorLogado.nome == 'compras'}" th:href="@{/estoque/novo}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    Cadastrar Novo Produto
+                </a>
+            </div>
+
+            <div th:if="${param.error == 'vencido'}" class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50" role="alert">
+                Não é possível consumir um produto vencido.
+            </div>
+            <div th:if="${param.removido == 'true'}" class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-50" role="alert">
+                Produto removido com sucesso.
+            </div>
+
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lote/SKU</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Validade</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr th:each="produto : ${produtos}" class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${produto.nome}"></td>
+                                
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${['Medicacao.class'].isInstance(produto)} ? ${produto.lote} : 'N/A'"></td>
+                                
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold" th:text="${produto.quantidade}"></td>
+                                
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${['Medicacao.class'].isInstance(produto) and produto.validade != null} ? ${#dates.format(produto.validade, 'dd/MM/yyyy')} : 'N/A'"></td>
+                                
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <th:block th:switch="true">
+                                        <span th:case="${['Medicacao.class'].isInstance(produto) and produto.isVencido()}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Vencido</span>
+                                        <span th:case="${produto.quantidade == 0}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Esgotado</span>
+                                        <span th:case="${['Medicacao.class'].isInstance(produto) and produto.isProximoVencimento()}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Venc. Próximo</span>
+                                        <span th:case="${produto.quantidade > 0 and produto.quantidade < 10}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Baixo Estoque</span>
+                                        <span th:case="*" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Disponível</span>
+                                    </th:block>
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a th:href="@{/estoque/{id}(id=${produto.getID()})}" class="text-indigo-600 hover:text-indigo-900">Detalhes</a>
+                                </td>
+                            </tr>
+                            
+                            <tr th:if="${#lists.isEmpty(produtos)}">
+                                <td colspan="6" class="text-center px-6 py-4 text-sm text-gray-500">Nenhum produto encontrado no estoque.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

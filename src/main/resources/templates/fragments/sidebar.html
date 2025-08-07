@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <aside th:fragment="sidebar" class="fixed inset-y-0 left-0 z-20 w-64 bg-gray-800 shadow-lg transition-transform -translate-x-full sm:translate-x-0">
+        <div class="p-4">
+            <h1 class="text-white text-xl font-bold">HealthStock</h1>
+        </div>
+        <nav class="mt-6">
+            <a th:href="@{/home}" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 rounded-md">🏠 Home</a>
+            <a th:href="@{/pedidos}" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 rounded-md">📑 Solicitações</a>
+            <a th:href="@{/estoque}" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 rounded-md">📋 Estoque</a>
+            <a th:if="${session.setorLogado != null && session.setorLogado.nome == 'compras'}" th:href="@{/fornecedores}" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 rounded-md">👥 Fornecedores</a>
+        </nav>
+    </aside>
+</body>
+</html>
