@@ -110,7 +110,7 @@ public class EstoqueService {
         return novoProduto;
     }
 
-    public boolean adicionarEstoqueParaSetor(String nomeProduto, int quantidade, String nomeSetorDestino, String responsavel, String detalhes) {
+    public boolean adicionarEstoqueParaSetor(String nomeProduto, int quantidade, String nomeSetorDestino, String responsavel, String loteEValidade, String tipoProduto) {
         // Encontra o produto "mestre" no cadastro para obter o código e fornecedor
         Produto produtoMestre = PersistenceService.carregarProdutos(p -> 
             p.getNome().equalsIgnoreCase(nomeProduto) && p.getSetor().equalsIgnoreCase(Auxiliar.SETOR_CADASTRO)
@@ -124,15 +124,20 @@ public class EstoqueService {
         Produto produtoAdicionado;
 
         if (produtoMestre instanceof Medicacao m) {
-            // Extrai lote e validade dos detalhes, se houver
-            String lote = detalhes != null && detalhes.contains("Lote:") ? detalhes.split("Lote:")[1].split(",")[0].trim() : "N/A";
+            String lote = loteEValidade;
             Date validade = null;
-            if (detalhes != null && detalhes.contains("Validade:")) {
-                try {
-                    String dataStr = detalhes.split("Validade:")[1].trim();
-                    validade = new SimpleDateFormat("yyyy-MM-dd").parse(dataStr);
-                } catch (ParseException e) { /* ignora erro de parse */ }
+            
+            // CORREÇÃO: Divide a string de entrada para separar lote e validade
+            if (loteEValidade != null && loteEValidade.contains("|")) {
+                String[] partes = loteEValidade.split("\\|");
+                lote = partes[0].trim();
+                if (partes.length > 1) {
+                    try {
+                        validade = new SimpleDateFormat("yyyy-MM-dd").parse(partes[1].trim());
+                    } catch (ParseException e) { /* ignora erro de parse */ }
+                }
             }
+
             produtoAdicionado = new Medicacao(novaInstanciaId, m.getCodigoProduto(), m.getNome(), quantidade, m.getIdFornecedor(), nomeSetorDestino, lote, validade, responsavel, new Date());
         } else {
             produtoAdicionado = new Produto(novaInstanciaId, produtoMestre.getCodigoProduto(), produtoMestre.getNome(), quantidade, produtoMestre.getIdFornecedor(), nomeSetorDestino);

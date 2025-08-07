@@ -70,7 +70,10 @@ public class PedidoService {
                     estoqueService.cadastrarNovoTipoProduto(setorCadastro, pedido.getProduto(), fornecedorId, tipoProduto);
                 } else { // Compra e reposição de estoque
                     // O setor de compras gera o produto e o envia para o solicitante
-                    if (!estoqueService.adicionarEstoqueParaSetor(pedido.getProduto(), pedido.getQuantidade(), pedido.getSetorSolicitante(), responsavel, detalhes)) {
+                    // CORREÇÃO: Passa lote e validade (se houver) explicitamente.
+                    // O campo 'detalhes' do formulário é usado para o lote.
+                    // O campo 'tipoProduto' do formulário é usado para a data de validade.
+                    if (!estoqueService.adicionarEstoqueParaSetor(pedido.getProduto(), pedido.getQuantidade(), pedido.getSetorSolicitante(), responsavel, detalhes, tipoProduto)) {
                         return false; // Falha ao gerar o novo estoque
                     }
                 }
