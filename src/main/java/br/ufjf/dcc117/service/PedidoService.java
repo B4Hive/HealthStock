@@ -64,11 +64,18 @@ public class PedidoService {
         if (pedido == null || !pedido.getSetorResponsavel().equals(setorResponsavel.getNome())) return false;
 
         if (aprovado) {
-            if (pedido.getQuantidade() == 0 && setorResponsavel instanceof SetorCadastro) {
-                if (fornecedorId == null || tipoProduto == null) return false;
-                estoqueService.cadastrarNovoTipoProduto((SetorCadastro) setorResponsavel, pedido.getProduto(), fornecedorId, tipoProduto);
+            if (setorResponsavel instanceof SetorCadastro setorCadastro) {
+                if (pedido.getQuantidade() == 0) { // Cadastro de novo produto
+                    if (fornecedorId == null || tipoProduto == null) return false;
+                    estoqueService.cadastrarNovoTipoProduto(setorCadastro, pedido.getProduto(), fornecedorId, tipoProduto);
+                } else { // Compra e reposição de estoque
+                    // O setor de compras gera o produto e o envia para o solicitante
+                    if (!estoqueService.adicionarEstoqueParaSetor(pedido.getProduto(), pedido.getQuantidade(), pedido.getSetorSolicitante(), responsavel, detalhes)) {
+                        return false; // Falha ao gerar o novo estoque
+                    }
+                }
             } else {
-                // Lógica FEFO (First-Expired, First-Out) para selecionar o lote
+                // Lógica FEFO (First-Expired, First-Out) para setores que gerenciam estoque (ex: almoxarifado)
                 Optional<Produto> loteParaMoverOpt = PersistenceService.carregarProdutos(p ->
                         p.getSetor().equalsIgnoreCase(setorResponsavel.getNome()) &&
                         p.getNome().equalsIgnoreCase(pedido.getProduto()) &&
@@ -89,6 +96,7 @@ public class PedidoService {
                 }
             }
         }
+        pedido.setDetalhes(detalhes != null ? detalhes : "NULL");
         setorResponsavel.aprovarPedido(pedido, aprovado);
         return true;
     }
